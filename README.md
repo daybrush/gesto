@@ -21,45 +21,28 @@ $ npm i gesto
 
 ## 🚀 How to use
 ```ts
-import { drag, DragOptions } from "gesto";
-// utils.drag
+import Gesto from "gesto";
 
-interface DragOptions {
-    container?: Window | Node | Element;
-    events?: Array<"mouse" | "touch">;
-    preventRightClick?: boolean;
-    dragstart?: (options: OnDragStart) => any;
-    drag?: (options: OnDrag) => any;
-    dragend?: (options: OnDragEnd) => any;
-    pinchstart?: (options: OnPinchStart) => any;
-    pinch?: (options: OnPinch) => any;
-    pinchend?: (options: OnPinchEnd) => any;
-}
+let tx = 0;
+let ty = 0;
+let scale = 1;
 
-const dragger = drag(document.querySelector(".target"), {
+const getso = new Gesto(target, {
     container: window,
-    dragstart: ({ inputEvent }) => {
-        inputEvent.stopPropagation();
-    },
-    drag: ({ distX, distY }) => {
-        console.log(distX, distY);
-    },
-    dragend: ({ isDrag }) => {
-        console.log(isDrag);
-    },
-    pinchstart: ({ touches }) => {
-
-    },
-    pinch: ({ touches, scale, clientX, clientY }) => {
-
-    },
-    pinchend: ({ touches, clientX, clientY }) => {
-
-    }
+    pinchOutside: true,
+}).on("drag", e => {
+    tx += e.deltaX;
+    ty += e.deltaY;
+    target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+}).on("pinchStart", e => {
+    e.datas.scale = scale;
+}).on("pinch", e => {
+    scale = e.datas.scale * e.scale;
+    target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
 });
 
 // remove event
-dragger.unset();
+getso.unset();
 ```
 
 ## 👏 Contributing

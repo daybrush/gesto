@@ -137,6 +137,7 @@ class Gesto extends Component {
         const targets = this.targets;
         const container = this.options.container!;
 
+        this.off();
         if (this.isMouse) {
             targets.forEach(target => {
                 removeEvent(target, "mousedown", this.onDragStart);

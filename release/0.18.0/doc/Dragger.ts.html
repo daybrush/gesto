@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Dragger.ts - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <link type="text/css" rel="stylesheet" href="styles/daybrush.css">
+    <link type="text/css" rel="stylesheet" href="styles/custom.css">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta name="description" content="Dragger.ts - Documentation"/>
+
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h2 class="custom"><a href="https://github.com/daybrush/drag" target="_blank" class="menu-item" id="repository" >Github repo</a></h2><div class="search"><div class="input-area"><input type="text"/></div><button></button></div><ul class="classes"><li file="dragger" class="parent"><a href="Dragger.html">Dragger</a><h4><a href="Dragger.html#methods">Methods</a></h4><ul class='methods'><li data-type='method'><a href="Dragger.html#isDragging">isDragging</a></li><li data-type='method'><a href="Dragger.html#isFlag">isFlag</a></li><li data-type='method'><a href="Dragger.html#isPinchFlag">isPinchFlag</a></li><li data-type='method'><a href="Dragger.html#isPinching">isPinching</a></li><li data-type='method'><a href="Dragger.html#onDragStart">onDragStart</a></li><li data-type='method'><a href="Dragger.html#scrollBy">scrollBy</a></li><li data-type='method'><a href="Dragger.html#unset">unset</a></li></ul><h4><a href="Dragger.html#type definitions">Type Definitions</a></h4><ul class='type definitions'><li data-type='typddef'><a href="Dragger.html#.Client">Client</a></li><li data-type='typddef'><a href="Dragger.html#.Delta">Delta</a></li><li data-type='typddef'><a href="Dragger.html#.Dist">Dist</a></li><li data-type='typddef'><a href="Dragger.html#.DragOptions">DragOptions</a></li><li data-type='typddef'><a href="Dragger.html#.Event">Event</a></li><li data-type='typddef'><a href="Dragger.html#.OnDrag">OnDrag</a></li><li data-type='typddef'><a href="Dragger.html#.OnDragEnd">OnDragEnd</a></li><li data-type='typddef'><a href="Dragger.html#.OnDragStart">OnDragStart</a></li><li data-type='typddef'><a href="Dragger.html#.OnPinch">OnPinch</a></li><li data-type='typddef'><a href="Dragger.html#.OnPinchEnd">OnPinchEnd</a></li><li data-type='typddef'><a href="Dragger.html#.OnPinchStart">OnPinchStart</a></li><li data-type='typddef'><a href="Dragger.html#.Position">Position</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">Dragger.ts</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { DragOptions, Client, Position, OnDrag } from "./types";
+import {
+    getPositionEvent, getPosition, getClients, getPositions,
+    isMultiTouch, getPinchDragPosition, getAverageClient, getDist, getRotatiion,
+} from "./utils";
+import { addEvent, removeEvent, now } from "@daybrush/utils";
+
+const INPUT_TAGNAMES = ["textarea", "input"];
+/**
+ * You can set up drag events in any browser.
+ */
+class Dragger {
+    public options: DragOptions = {};
+    private flag = false;
+    private pinchFlag = false;
+    private datas = {};
+    private isDrag = false;
+    private isPinch = false;
+    private isMouse = false;
+    private isTouch = false;
+    private prevClients: Client[] = [];
+    private startClients: Client[] = [];
+    private movement: number = 0;
+    private startPinchClients: Client[] = [];
+    private startDistance: number = 0;
+    private customDist = [0, 0];
+    private targets: Array&lt;Element | Window> = [];
+    private prevTime: number = 0;
+    private isDouble: boolean = false;
+    private startRotate = 0;
+    /**
+     *
+     */
+    constructor(targets: Array&lt;Element | Window> | Element | Window, options: DragOptions = {}) {
+        const elements = [].concat(targets as any) as Array&lt;Element | Window> ;
+        this.options = {
+            checkInput: true,
+            container: elements.length > 1 ? window : elements[0],
+            preventRightClick: true,
+            preventDefault: true,
+            pinchThreshold: 0,
+            events: ["touch", "mouse"],
+            ...options,
+        };
+
+        const { container, events } = this.options;
+
+        this.isTouch = events!.indexOf("touch") > -1;
+        this.isMouse = events!.indexOf("mouse") > -1;
+        this.customDist = [0, 0];
+        this.targets = elements;
+
+        if (this.isMouse) {
+            elements.forEach(el => {
+                addEvent(el, "mousedown", this.onDragStart);
+            });
+            addEvent(container!, "mousemove", this.onDrag);
+            addEvent(container!, "mouseup", this.onDragEnd);
+            addEvent(container!, "contextmenu", this.onDragEnd);
+        }
+        if (this.isTouch) {
+            const passive = {
+                passive: false,
+            };
+            elements.forEach(el => {
+                addEvent(el, "touchstart", this.onDragStart, passive);
+            });
+            addEvent(container!, "touchmove", this.onDrag, passive);
+            addEvent(container!, "touchend", this.onDragEnd, passive);
+            addEvent(container!, "touchcancel", this.onDragEnd, passive);
+        }
+    }
+    /**
+     *
+     */
+    public isDragging() {
+        return this.isDrag;
+    }
+    /**
+     *
+     */
+    public isFlag() {
+        return this.flag;
+    }
+    /**
+     *
+     */
+    public isPinchFlag() {
+        return this.pinchFlag;
+    }
+    /**
+     *
+     */
+    public isPinching() {
+        return this.isPinch;
+    }
+    /**
+     *
+     */
+    public scrollBy(deltaX: number, deltaY: number, e: any, isCallDrag: boolean = true) {
+        if (!this.flag) {
+            return;
+        }
+        this.startClients.forEach(client => {
+            client.clientX -= deltaX;
+            client.clientY -= deltaY;
+        });
+        this.prevClients.forEach(client => {
+            client.clientX -= deltaX;
+            client.clientY -= deltaY;
+        });
+        isCallDrag &amp;&amp; this.onDrag(e, true);
+    }
+    /**
+     * @method
+     */
+    public onDragStart = (e: any) => {
+        if (!this.flag &amp;&amp; e.cancelable === false) {
+            return;
+        }
+        const { container, pinchOutside, dragstart, preventRightClick, preventDefault, checkInput } = this.options;
+        const isTouch = this.isTouch;
+
+        if (!this.flag &amp;&amp; checkInput) {
+            const target = e.target as HTMLElement;
+            const tagName = target.tagName.toLowerCase();
+
+            if (INPUT_TAGNAMES.indexOf(tagName) > -1 || target.isContentEditable) {
+                return false;
+            }
+        }
+        if (!this.flag &amp;&amp; isTouch &amp;&amp; pinchOutside) {
+            setTimeout(() => {
+                addEvent(container!, "touchstart", this.onDragStart);
+            });
+        }
+        if (this.flag &amp;&amp; isTouch &amp;&amp; pinchOutside) {
+            removeEvent(container!, "touchstart", this.onDragStart);
+        }
+        if (isMultiTouch(e)) {
+            if (!this.flag &amp;&amp; (e.touches.length !== e.changedTouches.length)) {
+                return;
+            }
+            if (!this.pinchFlag) {
+                this.onPinchStart(e);
+            }
+        }
+        if (this.flag) {
+            return;
+        }
+        const clients = this.startClients[0] ? this.startClients : getPositionEvent(e);
+
+        this.customDist = [0, 0];
+        this.flag = true;
+        this.isDrag = false;
+        this.startClients = clients;
+        this.prevClients = clients;
+        this.datas = {};
+        this.movement = 0;
+
+        const position = getPosition(clients[0], this.prevClients[0], this.startClients[0]);
+
+        if (preventRightClick &amp;&amp; (e.which === 3 || e.button === 2)) {
+            this.initDrag();
+            return false;
+        }
+        const result = dragstart &amp;&amp; dragstart({
+            type: "dragstart",
+            datas: this.datas,
+            inputEvent: e,
+            ...position,
+        });
+        if (result === false) {
+            this.initDrag();
+        }
+        this.isDouble = now() - this.prevTime &lt; 200;
+        this.flag &amp;&amp; preventDefault &amp;&amp; e.preventDefault();
+    }
+    public onDrag = (e: any, isScroll?: boolean) => {
+        if (!this.flag) {
+            return;
+        }
+        const clients = getPositionEvent(e);
+
+        if (this.pinchFlag) {
+            this.onPinch(e, clients);
+        }
+        const result = this.move([0, 0], e, clients);
+
+        if (!result || (!result.deltaX &amp;&amp; !result.deltaY)) {
+            return;
+        }
+        const drag = this.options.drag;
+
+        drag &amp;&amp; drag({
+            ...result,
+            isScroll: !!isScroll,
+            inputEvent: e,
+        });
+    }
+    public move([deltaX, deltaY]: number[], inputEvent: any, clients = this.prevClients): OnDrag | undefined {
+        const customDist = this.customDist;
+        const prevClients = this.prevClients;
+        const startClients = this.startClients;
+        const position: Position = this.pinchFlag
+            ? getPinchDragPosition(clients, prevClients, startClients, this.startPinchClients)
+            : getPosition(clients[0], prevClients[0], startClients[0]);
+
+        customDist[0] += deltaX;
+        customDist[1] += deltaY;
+        position.deltaX += deltaX;
+        position.deltaY += deltaY;
+
+        const {
+            deltaX: positionDeltaX,
+            deltaY: positionDeltaY,
+        } = position;
+
+        position.distX += customDist[0];
+        position.distY += customDist[1];
+
+        this.movement += Math.sqrt(positionDeltaX * positionDeltaX + positionDeltaY * positionDeltaY);
+        this.prevClients = clients;
+        this.isDrag = true;
+
+        return {
+            type: "drag",
+            datas: this.datas,
+            ...position,
+            movement: this.movement,
+            isDrag: this.isDrag,
+            isPinch: this.isPinch,
+            isScroll: false,
+            inputEvent,
+        };
+    }
+    public onDragEnd = (e: any) => {
+        if (!this.flag) {
+            return;
+        }
+        const { dragend, pinchOutside, container } = this.options;
+        if (this.isTouch &amp;&amp; pinchOutside) {
+            removeEvent(container!, "touchstart", this.onDragStart);
+        }
+        if (this.pinchFlag) {
+            this.onPinchEnd(e);
+        }
+        this.flag = false;
+
+        const prevClients = this.prevClients;
+        const startClients = this.startClients;
+
+        const position: Position = this.pinchFlag
+            ? getPinchDragPosition(prevClients, prevClients, startClients, this.startPinchClients)
+            : getPosition(prevClients[0], prevClients[0], startClients[0]);
+
+        const currentTime = now();
+        const isDouble = !this.isDrag &amp;&amp; this.isDouble;
+
+        this.prevTime = this.isDrag || isDouble ? 0 : currentTime;
+        this.startClients = [];
+        this.prevClients = [];
+
+        dragend &amp;&amp; dragend({
+            type: "dragend",
+            datas: this.datas,
+            isDouble,
+            isDrag: this.isDrag,
+            inputEvent: e,
+            ...position,
+        });
+    }
+    public onPinchStart(e: TouchEvent) {
+        const { pinchstart, pinchThreshold } = this.options;
+
+        if (this.isDrag &amp;&amp; this.movement > pinchThreshold!) {
+            return;
+        }
+        const pinchClients = getClients(e.changedTouches);
+
+        this.pinchFlag = true;
+        this.startClients.push(...pinchClients);
+        this.prevClients.push(...pinchClients);
+        this.startDistance = getDist(this.prevClients);
+        this.startPinchClients = [...this.prevClients];
+
+        if (!pinchstart) {
+            return;
+        }
+        const startClients = this.prevClients;
+        const startAverageClient = getAverageClient(startClients);
+        const centerPosition = getPosition(
+            startAverageClient,
+            startAverageClient,
+            startAverageClient,
+        );
+
+        this.startRotate = getRotatiion(startClients);
+        pinchstart({
+            type: "pinchstart",
+            datas: this.datas,
+            angle: this.startRotate,
+            touches: getPositions(startClients, startClients, startClients),
+            ...centerPosition,
+            inputEvent: e,
+        });
+    }
+    public onPinch(e: TouchEvent, clients: Client[]) {
+        if (!this.flag || !this.pinchFlag || clients.length &lt; 2) {
+            return;
+        }
+        this.isPinch = true;
+
+        const pinch = this.options.pinch;
+        if (!pinch) {
+            return;
+        }
+        const prevClients = this.prevClients;
+        const startClients = this.startClients;
+        const centerPosition = getPosition(
+            getAverageClient(clients),
+            getAverageClient(prevClients),
+            getAverageClient(startClients),
+        );
+        const angle = getRotatiion(clients);
+        const distance = getDist(clients);
+        pinch({
+            type: "pinch",
+            datas: this.datas,
+            movement: this.movement,
+            angle,
+            rotation: angle - this.startRotate,
+            touches: getPositions(clients, prevClients, startClients),
+            scale: distance / this.startDistance,
+            distance,
+            ...centerPosition,
+            inputEvent: e,
+        });
+    }
+    public onPinchEnd(e: TouchEvent) {
+        if (!this.flag || !this.pinchFlag) {
+            return;
+        }
+        const isPinch = this.isPinch;
+
+        this.isPinch = false;
+        this.pinchFlag = false;
+        const pinchend = this.options.pinchend;
+
+        if (!pinchend) {
+            return;
+        }
+        const prevClients = this.prevClients;
+        const startClients = this.startClients;
+        const centerPosition = getPosition(
+            getAverageClient(prevClients),
+            getAverageClient(prevClients),
+            getAverageClient(startClients),
+        );
+        pinchend({
+            type: "pinchend",
+            datas: this.datas,
+            isPinch,
+            touches: getPositions(prevClients, prevClients, startClients),
+            ...centerPosition,
+            inputEvent: e,
+        });
+        this.isPinch = false;
+        this.pinchFlag = false;
+    }
+    /**
+     *
+     */
+    public unset() {
+        const targets = this.targets;
+        const container = this.options.container!;
+
+        if (this.isMouse) {
+            targets.forEach(target => {
+                removeEvent(target, "mousedown", this.onDragStart);
+            });
+            removeEvent(container, "mousemove", this.onDrag);
+            removeEvent(container, "mouseup", this.onDragEnd);
+            removeEvent(container, "contextmenu", this.onDragEnd);
+        }
+        if (this.isTouch) {
+            targets.forEach(target => {
+                removeEvent(target, "touchstart", this.onDragStart);
+            });
+            removeEvent(container, "touchstart", this.onDragStart);
+            removeEvent(container, "touchmove", this.onDrag);
+            removeEvent(container, "touchend", this.onDragEnd);
+            removeEvent(container, "touchcancel", this.onDragEnd);
+        }
+    }
+    private initDrag() {
+        this.startClients = [];
+        this.prevClients = [];
+        this.flag = false;
+    }
+}
+
+export default Dragger;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+
+<style>
+
+
+nav li[file="dragger"]:after {
+    display: none;
+}
+nav li[file="dragger"] h4, nav li[file="dragger"] ul {
+    display: block;
+}
+</style>
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/daybrush/jsdoc">JSDoc 0.3.7</a> on Thu Jun 18 2020 14:05:29 GMT+0900 (GMT+09:00) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+<script src="scripts/utils.min.js"></script>
+<script src="scripts/search.js"></script>
+<script src="scripts/custom.js"></script>
+</body>
+</html>

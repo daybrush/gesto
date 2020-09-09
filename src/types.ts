@@ -5,7 +5,8 @@ import { IObject } from "@daybrush/utils";
  * @memberof Gesto
  */
 export interface Event {
-    eventType?: string;
+    eventType: string;
+    stop(): void;
 }
 
 /**
@@ -146,3 +147,11 @@ export interface GestoEvents {
     "pinch": OnPinch;
     "pinchEnd": OnPinchEnd;
 }
+
+type x = Exclude<keyof GestoEvents, "stop" | "eventType">;
+
+/**
+ * @typedef
+ * @memberof Gesto
+ */
+export type ComponentTriggerType<T extends IObject<any>> = Pick<T, Exclude<keyof T, "stop" | "eventType">>;

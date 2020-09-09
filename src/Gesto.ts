@@ -1,6 +1,6 @@
-import { Client, Position, OnDrag, GestoOptions, GestoEvents } from "./types";
+import { Client, OnDrag, GestoOptions, GestoEvents, ComponentTriggerType } from "./types";
 import {
-    getEventClients, getPosition, isMultiTouch,
+    getEventClients, isMultiTouch,
 } from "./utils";
 import Component from "@egjs/component";
 import { addEvent, removeEvent, now } from "@daybrush/utils";
@@ -8,7 +8,7 @@ import { ClientStore } from "./ClientStore";
 
 const INPUT_TAGNAMES = ["textarea", "input"];
 /**
- * You can set up drag events in any browser.
+ * You can set up drag, pinch events in any browser.
  */
 class Gesto extends Component {
     public options: GestoOptions = {};
@@ -111,7 +111,7 @@ class Gesto extends Component {
     /**
      * Create a virtual drag event.
      */
-    public move([deltaX, deltaY]: number[], inputEvent: any): OnDrag {
+    public move([deltaX, deltaY]: number[], inputEvent: any): ComponentTriggerType<OnDrag> {
         const store = this.getCurrentStore();
         const nextClients = store.prevClients;
 
@@ -241,7 +241,7 @@ class Gesto extends Component {
         const clients = getEventClients(e);
         const result = this.moveClients(clients, e, false);
 
-        if (result.deltaX || result.deltaY) {
+        if (this.pinchFlag || result.deltaX || result.deltaY) {
             this.trigger("drag", {
                 ...result,
                 isScroll: !!isScroll,
@@ -351,7 +351,7 @@ class Gesto extends Component {
     private getCurrentStore() {
         return this.clientStores[0];
     }
-    private moveClients(clients: Client[], inputEvent: any, isAdd: boolean) {
+    private moveClients(clients: Client[], inputEvent: any, isAdd: boolean): ComponentTriggerType<OnDrag> {
         const store = this.getCurrentStore();
         const position = store[isAdd ? "addClients" : "getPosition"](clients);
 
@@ -374,6 +374,7 @@ interface Gesto {
         eventName: T, handlerToAttach: (event: GestoEvents[T]) => any): this;
     on(eventName: string, handlerToAttach: (event: { [key: string]: any }) => any): this;
     on(events: { [key: string]: (event: { [key: string]: any }) => any }): this;
-    trigger<T extends keyof GestoEvents>(eventName: T, param: GestoEvents[T]): boolean;
+    trigger<T extends keyof GestoEvents>(eventName: T, param: ComponentTriggerType<GestoEvents[T]>): boolean;
+    trigger(eventName: string, param: { [key: string]: any }): boolean;
 }
 export default Gesto;

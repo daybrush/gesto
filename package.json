@@ -1,0 +1,52 @@
+{
+    "name": "gesto",
+    "version": "0.20.0",
+    "description": "You can set up drag, pinch events in any browser.",
+    "main": "./dist/gesto.cjs.js",
+    "module": "./dist/gesto.esm.js",
+    "sideEffects": false,
+    "types": "declaration/index.d.ts",
+    "scripts": {
+        "start": "rollup -c -w",
+        "build": "rollup -c && npm run declaration && print-sizes ./dist",
+        "declaration": "rm -rf declaration && tsc -p tsconfig.declaration.json",
+        "doc": "rm -rf ./doc && jsdoc -c jsdoc.json",
+        "release": "npm run build && npm run doc && release --dirs=dist,doc",
+        "release:init": "npm run build && npm run doc && release -i --dirs=dist,doc",
+        "deploy": "gh-pages -d ./demo --dest=./ --add --remote origin",
+        "prerelease": "npm run build && prerelease --dirs=dist,doc"
+    },
+    "keywords": [
+        "gesture",
+        "pinch",
+        "drag",
+        "dom",
+        "daybrush",
+        "gesto",
+        "touch",
+        "mouse"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/daybrush/gesture.git"
+    },
+    "author": "Daybrush",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/daybrush/gesture/issues"
+    },
+    "homepage": "https://github.com/daybrush/gesture#readme",
+    "devDependencies": {
+        "@daybrush/builder": "^0.1.1",
+        "@daybrush/jsdoc": "^0.3.7",
+        "@daybrush/release": "^0.2.4",
+        "daybrush-jsdoc-template": "^1.6.0",
+        "print-sizes": "^0.1.0",
+        "tslint": "^5.15.0",
+        "typescript": "^3.4.2"
+    },
+    "dependencies": {
+        "@daybrush/utils": "^1.0.0",
+        "@egjs/component": "^2.1.2"
+    }
+}

@@ -1,0 +1,39 @@
+<style>
+    #target {
+        position: absolute;
+        width: 200px;
+        height: 150px;
+        line-height: 150px;
+        background: #333;
+        color: #fff;
+        font-size: 16px;
+        font-weight: bold;
+        font-family: sans-serif;
+        text-align: center;
+        top: 50%;
+        left: 50%;
+        margin-left: -100px;
+        margin-left: -75px;
+    }
+</style>
+<div id="target">Drag or Pinch me</div>
+<script src="../dist/gesto.js"></script>
+<script>
+    let tx = 0;
+    let ty = 0;
+    let scale = 1;
+
+    new Gesto(target, {
+        container: window,
+        pinchOutside: true,
+    }).on("drag", e => {
+        tx += e.deltaX;
+        ty += e.deltaY;
+        target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    }).on("pinchStart", e => {
+        e.datas.scale = scale;
+    }).on("pinch", e => {
+        scale = e.datas.scale * e.scale;
+        target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+    });
+</script>

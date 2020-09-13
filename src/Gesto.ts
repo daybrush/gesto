@@ -296,13 +296,17 @@ class Gesto extends Component {
         this.pinchFlag = true;
         this.clientStores.splice(0, 0, store);
 
-        this.trigger("pinchStart", {
+        const result = this.trigger("pinchStart", {
             datas: this.datas,
             angle: store.getAngle(),
             touches: this.getCurrentStore().getPositions(),
             ...store.getPosition(),
             inputEvent: e,
         });
+
+        if (result === false) {
+            this.pinchFlag = false;
+        }
     }
     public onPinch(e: TouchEvent, clients: Client[]) {
         if (!this.flag || !this.pinchFlag || clients.length < 2) {

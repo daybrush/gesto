@@ -110,15 +110,17 @@
             </div>
         </div>
     </div>
+    <!-- <script src="../dist/gesto.js"></script> -->
     <script src="./release/latest/dist/gesto.js"></script>
     <script>
         let tx = 0;
         let ty = 0;
         let scale = 1;
 
-        new Gesto(target, {
+        const gesto = new Gesto(target, {
             container: window,
             pinchOutside: true,
+            checkWindowBlur: true,
         }).on("drag", function (e) {
             tx += e.deltaX;
             ty += e.deltaY;

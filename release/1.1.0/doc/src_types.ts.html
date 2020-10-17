@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Home - Documentation</title>
+    <title>src/types.ts - Documentation</title>
 
     <script src="scripts/prettify/prettify.js"></script>
     <script src="scripts/prettify/lang-css.js"></script>
@@ -14,7 +14,7 @@
     <link type="text/css" rel="stylesheet" href="styles/daybrush.css">
     <link type="text/css" rel="stylesheet" href="styles/custom.css">
     <meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no">
-    <meta name="description" content="Home - Documentation"/>
+    <meta name="description" content="src/types.ts - Documentation"/>
 
 </head>
 <body>
@@ -32,93 +32,161 @@
 
 <div id="main">
     
+    <h1 class="page-title">src/types.ts</h1>
+    
 
     
 
 
 
     
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { IObject } from "@daybrush/utils";
+import { EmitterParam } from "@scena/event-emitter";
+import Gesto from "./Gesto";
+/**
+ * @typedef
+ * @memberof Gesto
+ */
+export interface Client {
+    clientX: number;
+    clientY: number;
+    originalClientX?: number;
+    originalClientY?: number;
+}
+/**
+ * @typedef
+ * @memberof Gesto
+ */
+export interface Dist {
+    distX: number;
+    distY: number;
+}
+/**
+ * @typedef
+ * @memberof Gesto
+ */
+export interface Delta {
+    deltaX: number;
+    deltaY: number;
+}
+/**
+ * @typedef
+ * @memberof Gesto
+ * @extends Gesto.Client
+ * @extends Gesto.Dist
+ * @extends Gesto.Delta
+ */
+export interface Position extends Client, Dist, Delta {}
+/**
+ * @typedef
+ * @memberof Gesto
+ * @extends Gesto.Position
+ * @extends EventEmitter.EmitterParam
+ */
+export interface OnDragStart extends Position, EmitterParam&lt;Gesto> {
+    datas: IObject&lt;any>;
+    inputEvent: any;
+    isTrusted: any;
+}
+/**
+ * @typedef
+ * @memberof Gesto
+ * @extends Gesto.Position
+ * @extends EventEmitter.EmitterParam
+ */
+export interface OnDrag extends Position, EmitterParam&lt;Gesto> {
+    isDrag: boolean;
+    isPinch: boolean;
+    movement: number;
+    datas: IObject&lt;any>;
+    isScroll: boolean;
+    inputEvent: any;
+}
+/**
+ * @typedef
+ * @memberof Gesto
+ * @extends Gesto.Position
+ * @extends EventEmitter.EmitterParam
+ */
+export interface OnDragEnd extends Position, EmitterParam&lt;Gesto> {
+    isDrag: boolean;
+    isDouble: boolean;
+    datas: IObject&lt;any>;
+    inputEvent: any;
+}
+/**
+ * @typedef
+ * @memberof Gesto
+ * @extends Gesto.Position
+ * @extends EventEmitter.EmitterParam
+ */
+export interface OnPinchStart extends Position, EmitterParam&lt;Gesto> {
+    datas: IObject&lt;any>;
+    touches: Position[];
+    angle: number;
+    inputEvent: any;
+}
+/**
+ * @typedef
+ * @memberof Gesto
+ * @extends Gesto.Position
+ * @extends EventEmitter.EmitterParam
+ */
+export interface OnPinch extends Position, EmitterParam&lt;Gesto> {
+    datas: IObject&lt;any>;
+    touches: Position[];
+    rotation: number;
+    angle: number;
+    scale: number;
+    distance: number;
+    movement: number;
+    inputEvent: any;
+}
+/**
+ * @typedef
+ * @memberof Gesto
+ * @extends Gesto.Position
+ * @extends EventEmitter.EmitterParam
+ */
+export interface OnPinchEnd extends Position, EmitterParam&lt;Gesto> {
+    isPinch: boolean;
+    datas: IObject&lt;any>;
+    touches: Position[];
+    inputEvent: any;
+}
 
+/**
+ * @typedef
+ * @memberof Gesto
+ */
+export interface GestoOptions {
+    container?: Window | Node | Element;
+    events?: Array&lt;"mouse" | "touch">;
+    preventRightClick?: boolean;
+    preventDefault?: boolean;
+    pinchThreshold?: number;
+    pinchOutside?: boolean;
+    checkInput?: boolean;
+    checkWindowBlur?: boolean;
+}
 
-
-
-
-
-
-
-
-    
-
-
-    <section class="readme">
-        <article><p align="middle" ><img src="https://github.com/daybrush/gesto/raw/master/demo/images/logo.png" /></p>
-<h2 align="middle">Gesto</h2>
-<p align="middle"><a href="https://www.npmjs.com/package/gesto" target="_blank"><img src="https://img.shields.io/npm/v/gesto.svg?style=flat-square&color=007acc&label=version" alt="npm version" /></a> <img src="https://img.shields.io/badge/language-typescript-blue.svg?style=flat-square"/> <a href="https://github.com/daybrush/gesto/blob/master/LICENSE" target="_blank"><img src="https://img.shields.io/github/license/daybrush/gesto.svg?style=flat-square&label=license&color=08CE5D"/></a>
-</p>
-<p align="middle">You can set up drag, pinch events in any browser.</p>
-<ul>
-<li><a href="https://daybrush.com/gesto/release/latest/doc/">API Documentation</a></li>
-</ul>
-<h2>⚙️ Installation</h2>
-<pre class="prettyprint source lang-sh"><code>$ npm i gesto
+/**
+ * @typedef
+ * @memberof Gesto
+ */
+export type GestoEvents = {
+    "dragStart": OnDragStart;
+    "drag": OnDrag;
+    "dragEnd": OnDragEnd;
+    "pinchStart": OnPinchStart;
+    "pinch": OnPinch;
+    "pinchEnd": OnPinchEnd;
+};
 </code></pre>
-<pre class="prettyprint source lang-html"><code>&lt;script src=&quot;https://daybrush.com/gesto/release/latest/dist/gesto.min.js&quot;>&lt;/script>
-</code></pre>
-<h2>🚀 How to use</h2>
-<pre class="prettyprint source lang-ts"><code>import Gesto from &quot;gesto&quot;;
-
-let tx = 0;
-let ty = 0;
-let scale = 1;
-
-const getso = new Gesto(target, {
-    container: window,
-    pinchOutside: true,
-}).on(&quot;drag&quot;, e => {
-    tx += e.deltaX;
-    ty += e.deltaY;
-    target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-}).on(&quot;pinchStart&quot;, e => {
-    e.datas.scale = scale;
-}).on(&quot;pinch&quot;, e => {
-    scale = e.datas.scale * e.scale;
-    target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-});
-
-// remove event
-getso.unset();
-</code></pre>
-<h2>👏 Contributing</h2>
-<p>If you have any questions or requests or want to contribute to <code>gesto</code>, please write the <a href="https://github.com/daybrush/gesto/issues">issue</a> or give me a Pull Request freely.</p>
-<h2>🐞 Bug Report</h2>
-<p>If you find a bug, please report to us opening a new <a href="https://github.com/daybrush/gesto/issues">Issue</a> on GitHub.</p>
-<h2>📝 License</h2>
-<p>This project is <a href="https://github.com/daybrush/gesto/blob/master/LICENSE">MIT</a> licensed.</p>
-<pre class="prettyprint source"><code>MIT License
-
-Copyright (c) 2019 Daybrush
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the &quot;Software&quot;), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED &quot;AS IS&quot;, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-</code></pre></article>
+        </article>
     </section>
-
-
 
 
 
@@ -126,18 +194,11 @@ SOFTWARE.
 
 <style>
 
-nav>.search+ul li:first-child:after {
+
+nav li[file="src/types"]:after {
     display: none;
 }
-nav>.search+ul li:first-child h4, nav>.search+ul li:first-child ul {
-    display: block;
-}
-
-
-nav li[file="home"]:after {
-    display: none;
-}
-nav li[file="home"] h4, nav li[file="home"] ul {
+nav li[file="src/types"] h4, nav li[file="src/types"] ul {
     display: block;
 }
 </style>

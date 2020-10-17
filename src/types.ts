@@ -1,14 +1,6 @@
 import { IObject } from "@daybrush/utils";
-
-/**
- * @typedef
- * @memberof Gesto
- */
-export interface Event {
-    eventType: string;
-    stop(): void;
-}
-
+import { EmitterParam } from "@scena/event-emitter";
+import Gesto from "./Gesto";
 /**
  * @typedef
  * @memberof Gesto
@@ -47,9 +39,9 @@ export interface Position extends Client, Dist, Delta {}
  * @typedef
  * @memberof Gesto
  * @extends Gesto.Position
- * @extends Gesto.Event
+ * @extends EventEmitter.EmitterParam
  */
-export interface OnDragStart extends Position, Event {
+export interface OnDragStart extends Position, EmitterParam<Gesto> {
     datas: IObject<any>;
     inputEvent: any;
     isTrusted: any;
@@ -58,9 +50,9 @@ export interface OnDragStart extends Position, Event {
  * @typedef
  * @memberof Gesto
  * @extends Gesto.Position
- * @extends Gesto.Event
+ * @extends EventEmitter.EmitterParam
  */
-export interface OnDrag extends Position, Event {
+export interface OnDrag extends Position, EmitterParam<Gesto> {
     isDrag: boolean;
     isPinch: boolean;
     movement: number;
@@ -72,9 +64,9 @@ export interface OnDrag extends Position, Event {
  * @typedef
  * @memberof Gesto
  * @extends Gesto.Position
- * @extends Gesto.Event
+ * @extends EventEmitter.EmitterParam
  */
-export interface OnDragEnd extends Position, Event {
+export interface OnDragEnd extends Position, EmitterParam<Gesto> {
     isDrag: boolean;
     isDouble: boolean;
     datas: IObject<any>;
@@ -84,9 +76,9 @@ export interface OnDragEnd extends Position, Event {
  * @typedef
  * @memberof Gesto
  * @extends Gesto.Position
- * @extends Gesto.Event
+ * @extends EventEmitter.EmitterParam
  */
-export interface OnPinchStart extends Position, Event {
+export interface OnPinchStart extends Position, EmitterParam<Gesto> {
     datas: IObject<any>;
     touches: Position[];
     angle: number;
@@ -96,9 +88,9 @@ export interface OnPinchStart extends Position, Event {
  * @typedef
  * @memberof Gesto
  * @extends Gesto.Position
- * @extends Gesto.Event
+ * @extends EventEmitter.EmitterParam
  */
-export interface OnPinch extends Position, Event {
+export interface OnPinch extends Position, EmitterParam<Gesto> {
     datas: IObject<any>;
     touches: Position[];
     rotation: number;
@@ -112,9 +104,9 @@ export interface OnPinch extends Position, Event {
  * @typedef
  * @memberof Gesto
  * @extends Gesto.Position
- * @extends Gesto.Event
+ * @extends EventEmitter.EmitterParam
  */
-export interface OnPinchEnd extends Position, Event {
+export interface OnPinchEnd extends Position, EmitterParam<Gesto> {
     isPinch: boolean;
     datas: IObject<any>;
     touches: Position[];
@@ -133,25 +125,18 @@ export interface GestoOptions {
     pinchThreshold?: number;
     pinchOutside?: boolean;
     checkInput?: boolean;
+    checkWindowBlur?: boolean;
 }
 
 /**
  * @typedef
  * @memberof Gesto
  */
-export interface GestoEvents {
+export type GestoEvents = {
     "dragStart": OnDragStart;
     "drag": OnDrag;
     "dragEnd": OnDragEnd;
     "pinchStart": OnPinchStart;
     "pinch": OnPinch;
     "pinchEnd": OnPinchEnd;
-}
-
-type x = Exclude<keyof GestoEvents, "stop" | "eventType">;
-
-/**
- * @typedef
- * @memberof Gesto
- */
-export type ComponentTriggerType<T extends IObject<any>> = Pick<T, Exclude<keyof T, "stop" | "eventType">>;
+};

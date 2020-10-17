@@ -1,8 +1,8 @@
-import { Client, OnDrag, GestoOptions, GestoEvents, ComponentTriggerType } from "./types";
+import { Client, OnDrag, GestoOptions, GestoEvents } from "./types";
 import {
     getEventClients, isMultiTouch,
 } from "./utils";
-import Component from "@egjs/component";
+import EventEmitter, { TargetParam } from "@scena/event-emitter";
 import { addEvent, removeEvent, now } from "@daybrush/utils";
 import { ClientStore } from "./ClientStore";
 
@@ -10,7 +10,7 @@ const INPUT_TAGNAMES = ["textarea", "input"];
 /**
  * You can set up drag, pinch events in any browser.
  */
-class Gesto extends Component {
+class Gesto extends EventEmitter<GestoEvents> {
     public options: GestoOptions = {};
     private flag = false;
     private pinchFlag = false;
@@ -35,12 +35,13 @@ class Gesto extends Component {
             container: elements.length > 1 ? window : elements[0],
             preventRightClick: true,
             preventDefault: true,
+            checkWindowBlur: false,
             pinchThreshold: 0,
             events: ["touch", "mouse"],
             ...options,
         };
 
-        const { container, events } = this.options;
+        const { container, events, checkWindowBlur } = this.options;
 
         this.isTouch = events!.indexOf("touch") > -1;
         this.isMouse = events!.indexOf("mouse") > -1;
@@ -53,6 +54,9 @@ class Gesto extends Component {
             addEvent(container!, "mousemove", this.onDrag);
             addEvent(container!, "mouseup", this.onDragEnd);
             addEvent(container!, "contextmenu", this.onDragEnd);
+        }
+        if (checkWindowBlur) {
+            addEvent(window, "blur", this.onBlur);
         }
         if (this.isTouch) {
             const passive = {
@@ -111,7 +115,7 @@ class Gesto extends Component {
     /**
      * Create a virtual drag event.
      */
-    public move([deltaX, deltaY]: number[], inputEvent: any): ComponentTriggerType<OnDrag> {
+    public move([deltaX, deltaY]: number[], inputEvent: any): TargetParam<OnDrag> {
         const store = this.getCurrentStore();
         const nextClients = store.prevClients;
 
@@ -138,6 +142,7 @@ class Gesto extends Component {
         const container = this.options.container!;
 
         this.off();
+        removeEvent(window, "blur", this.onBlur);
         if (this.isMouse) {
             targets.forEach(target => {
                 removeEvent(target, "mousedown", this.onDragStart);
@@ -199,7 +204,7 @@ class Gesto extends Component {
                 this.initDrag();
                 return false;
             }
-            const result = this.trigger("dragStart", {
+            const result = this.emit("dragStart", {
                 datas: this.datas,
                 inputEvent: e,
                 isTrusted,
@@ -243,7 +248,7 @@ class Gesto extends Component {
         const result = this.moveClients(clients, e, false);
 
         if (this.pinchFlag || result.deltaX || result.deltaY) {
-            this.trigger("drag", {
+            this.emit("drag", {
                 ...result,
                 isScroll: !!isScroll,
                 inputEvent: e,
@@ -255,7 +260,7 @@ class Gesto extends Component {
 
         this.getCurrentStore().addClients(clients);
     }
-    public onDragEnd = (e: any) => {
+    public onDragEnd = (e?: any) => {
         if (!this.flag) {
             return;
         }
@@ -273,7 +278,7 @@ class Gesto extends Component {
 
         this.prevTime = this.isDrag || isDouble ? 0 : currentTime;
 
-        this.trigger("dragEnd", {
+        this.emit("dragEnd", {
             datas: this.datas,
             isDouble,
             isDrag: this.isDrag,
@@ -296,7 +301,7 @@ class Gesto extends Component {
         this.pinchFlag = true;
         this.clientStores.splice(0, 0, store);
 
-        const result = this.trigger("pinchStart", {
+        const result = this.emit("pinchStart", {
             datas: this.datas,
             angle: store.getAngle(),
             touches: this.getCurrentStore().getPositions(),
@@ -316,7 +321,7 @@ class Gesto extends Component {
         const store = this.getCurrentStore();
         this.isPinch = true;
 
-        this.trigger("pinch", {
+        this.emit("pinch", {
             datas: this.datas,
             movement: this.getMovement(clients),
             angle: store.getAngle(clients),
@@ -337,7 +342,7 @@ class Gesto extends Component {
         this.isPinch = false;
         this.pinchFlag = false;
         const store = this.getCurrentStore();
-        this.trigger("pinchEnd", {
+        this.emit("pinchEnd", {
             datas: this.datas,
             isPinch,
             touches: store.getPositions(),
@@ -356,7 +361,7 @@ class Gesto extends Component {
     private getCurrentStore() {
         return this.clientStores[0];
     }
-    private moveClients(clients: Client[], inputEvent: any, isAdd: boolean): ComponentTriggerType<OnDrag> {
+    private moveClients(clients: Client[], inputEvent: any, isAdd: boolean): TargetParam<OnDrag> {
         const store = this.getCurrentStore();
         const position = store[isAdd ? "addClients" : "getPosition"](clients);
 
@@ -372,14 +377,9 @@ class Gesto extends Component {
             inputEvent,
         };
     }
+    private onBlur = () => {
+        this.onDragEnd();
+    }
 }
 
-interface Gesto {
-    on<T extends keyof GestoEvents>(
-        eventName: T, handlerToAttach: (event: GestoEvents[T]) => any): this;
-    on(eventName: string, handlerToAttach: (event: { [key: string]: any }) => any): this;
-    on(events: { [key: string]: (event: { [key: string]: any }) => any }): this;
-    trigger<T extends keyof GestoEvents>(eventName: T, param: ComponentTriggerType<GestoEvents[T]>): boolean;
-    trigger(eventName: string, param: { [key: string]: any }): boolean;
-}
 export default Gesto;

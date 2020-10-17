@@ -9,6 +9,7 @@
 		"no-console": false,
 		"no-any": false,
 		"interface-name": false,
+		"interface-over-type-literal": false,
 		"indent": [
 			true,
 			"spaces",

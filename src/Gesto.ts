@@ -3,7 +3,7 @@ import {
     getEventClients, isMultiTouch,
 } from "./utils";
 import EventEmitter, { TargetParam } from "@scena/event-emitter";
-import { addEvent, removeEvent, now } from "@daybrush/utils";
+import { addEvent, removeEvent, now, IObject } from "@daybrush/utils";
 import { ClientStore } from "./ClientStore";
 
 const INPUT_TAGNAMES = ["textarea", "input"];
@@ -14,7 +14,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     public options: GestoOptions = {};
     private flag = false;
     private pinchFlag = false;
-    private datas = {};
+    private datas: IObject<any> = {};
     private isDrag = false;
     private isPinch = false;
     private isMouse = false;
@@ -133,6 +133,23 @@ class Gesto extends EventEmitter<GestoEvents> {
      */
     public triggerDragStart(e: any) {
         this.onDragStart(e, false);
+    }
+    /**
+     * Set the event data while dragging.
+     */
+    public setEventDatas(datas: IObject<any>) {
+        const currentDatas = this.datas;
+
+        for (const name in datas) {
+            currentDatas[name] = datas[name];
+        }
+        return this;
+    }
+    /**
+     * Set the event data while dragging.
+     */
+    public getEventDatas(datas: IObject<any>) {
+        return this.datas;
     }
     /**
      * Unset Gesto

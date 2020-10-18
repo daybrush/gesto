@@ -121,13 +121,13 @@
             container: window,
             pinchOutside: true,
             checkWindowBlur: true,
-        }).on("drag", function (e) {
+        }).on("drag", e => {
             tx += e.deltaX;
             ty += e.deltaY;
             target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
-        }).on("pinchStart", function (e) {
+        }).on("pinchStart", e => {
             e.datas.scale = scale;
-        }).on("pinch", function (e) {
+        }).on("pinch", e => {
             scale = e.datas.scale * e.scale;
             target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
         });

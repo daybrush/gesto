@@ -148,7 +148,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     /**
      * Set the event data while dragging.
      */
-    public getEventDatas(datas: IObject<any>) {
+    public getEventDatas() {
         return this.datas;
     }
     /**

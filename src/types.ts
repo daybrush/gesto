@@ -41,7 +41,7 @@ export interface Position extends Client, Dist, Delta {}
  * @extends Gesto.Position
  * @extends EventEmitter.EmitterParam
  */
-export interface OnDragStart extends Position, EmitterParam<Gesto> {
+export interface OnDragStart<T = Gesto> extends Position, EmitterParam<T> {
     datas: IObject<any>;
     inputEvent: any;
     isTrusted: any;
@@ -52,7 +52,7 @@ export interface OnDragStart extends Position, EmitterParam<Gesto> {
  * @extends Gesto.Position
  * @extends EventEmitter.EmitterParam
  */
-export interface OnDrag extends Position, EmitterParam<Gesto> {
+export interface OnDrag<T = Gesto> extends Position, EmitterParam<T> {
     isDrag: boolean;
     isPinch: boolean;
     movement: number;
@@ -66,7 +66,7 @@ export interface OnDrag extends Position, EmitterParam<Gesto> {
  * @extends Gesto.Position
  * @extends EventEmitter.EmitterParam
  */
-export interface OnDragEnd extends Position, EmitterParam<Gesto> {
+export interface OnDragEnd<T = Gesto> extends Position, EmitterParam<T> {
     isDrag: boolean;
     isDouble: boolean;
     datas: IObject<any>;
@@ -78,7 +78,7 @@ export interface OnDragEnd extends Position, EmitterParam<Gesto> {
  * @extends Gesto.Position
  * @extends EventEmitter.EmitterParam
  */
-export interface OnPinchStart extends Position, EmitterParam<Gesto> {
+export interface OnPinchStart<T = Gesto> extends Position, EmitterParam<T> {
     datas: IObject<any>;
     touches: Position[];
     angle: number;
@@ -90,7 +90,7 @@ export interface OnPinchStart extends Position, EmitterParam<Gesto> {
  * @extends Gesto.Position
  * @extends EventEmitter.EmitterParam
  */
-export interface OnPinch extends Position, EmitterParam<Gesto> {
+export interface OnPinch<T = Gesto> extends Position, EmitterParam<T> {
     datas: IObject<any>;
     touches: Position[];
     rotation: number;
@@ -106,7 +106,7 @@ export interface OnPinch extends Position, EmitterParam<Gesto> {
  * @extends Gesto.Position
  * @extends EventEmitter.EmitterParam
  */
-export interface OnPinchEnd extends Position, EmitterParam<Gesto> {
+export interface OnPinchEnd<T = Gesto> extends Position, EmitterParam<T> {
     isPinch: boolean;
     datas: IObject<any>;
     touches: Position[];

@@ -22,7 +22,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     private clientStores: ClientStore[] = [];
     private targets: Array<Element | Window> = [];
     private prevTime: number = 0;
-    private isDouble: boolean = false;
+    private doubleFlag: boolean = false;
 
     /**
      *
@@ -96,12 +96,19 @@ class Gesto extends EventEmitter<GestoEvents> {
     public isPinchFlag() {
         return this.pinchFlag;
     }
+        /**
+     * Whether to start double click
+     */
+    public isDoubleFlag() {
+        return this.doubleFlag;
+    }
     /**
      * Whether to pinch
      */
     public isPinching() {
         return this.isPinch;
     }
+
     /**
      * If a scroll event occurs, it is corrected by the scroll distance.
      */
@@ -221,16 +228,18 @@ class Gesto extends EventEmitter<GestoEvents> {
                 this.initDrag();
                 return false;
             }
+            this.doubleFlag = now() - this.prevTime < 200;
+
             const result = this.emit("dragStart", {
                 datas: this.datas,
                 inputEvent: e,
                 isTrusted,
+                isDouble: this.doubleFlag,
                 ...this.getCurrentStore().getPosition(),
             });
             if (result === false) {
                 this.initDrag();
             }
-            this.isDouble = now() - this.prevTime < 200;
             this.flag && preventDefault && e.preventDefault();
         }
         if (!this.flag) {
@@ -291,7 +300,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         const position = this.getCurrentStore().getPosition();
 
         const currentTime = now();
-        const isDouble = !this.isDrag && this.isDouble;
+        const isDouble = !this.isDrag && this.doubleFlag;
 
         this.prevTime = this.isDrag || isDouble ? 0 : currentTime;
 
@@ -373,6 +382,8 @@ class Gesto extends EventEmitter<GestoEvents> {
     private initDrag() {
         this.clientStores = [];
         this.pinchFlag = false;
+        this.doubleFlag = false;
+        this.prevTime = 0;
         this.flag = false;
     }
     private getCurrentStore() {

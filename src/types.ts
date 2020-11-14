@@ -45,6 +45,7 @@ export interface OnDragStart<T = Gesto> extends Position, EmitterParam<T> {
     datas: IObject<any>;
     inputEvent: any;
     isTrusted: any;
+    isDouble: boolean;
 }
 /**
  * @typedef

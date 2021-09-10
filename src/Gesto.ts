@@ -308,6 +308,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             datas: this.datas,
             isDouble,
             isDrag: this.isDrag,
+            isClick: !this.isDrag,
             inputEvent: e,
             ...position,
         });

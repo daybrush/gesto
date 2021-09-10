@@ -69,6 +69,7 @@ export interface OnDrag<T = Gesto> extends Position, EmitterParam<T> {
  */
 export interface OnDragEnd<T = Gesto> extends Position, EmitterParam<T> {
     isDrag: boolean;
+    isClick: boolean;
     isDouble: boolean;
     datas: IObject<any>;
     inputEvent: any;

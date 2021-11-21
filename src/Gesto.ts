@@ -71,6 +71,15 @@ class Gesto extends EventEmitter<GestoEvents> {
         }
     }
     /**
+     * Stop Gesto's drag events.
+     */
+    public stop() {
+        this.isDrag = false;
+        this.flag = false;
+        this.clientStores = [];
+        this.datas = {};
+    }
+    /**
      * The total moved distance
      */
     public getMovement(clients?: Client[]) {
@@ -274,11 +283,16 @@ class Gesto extends EventEmitter<GestoEvents> {
         const result = this.moveClients(clients, e, false);
 
         if (this.pinchFlag || result.deltaX || result.deltaY) {
-            this.emit("drag", {
+            const dragResult = this.emit("drag", {
                 ...result,
                 isScroll: !!isScroll,
                 inputEvent: e,
             });
+
+            if (dragResult === false) {
+                this.stop();
+                return;
+            }
         }
         if (this.pinchFlag) {
             this.onPinch(e, clients);

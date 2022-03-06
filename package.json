@@ -28,14 +28,14 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/daybrush/gesture.git"
+        "url": "git+https://github.com/daybrush/gesto.git"
     },
     "author": "Daybrush",
     "license": "MIT",
     "bugs": {
-        "url": "https://github.com/daybrush/gesture/issues"
+        "url": "https://github.com/daybrush/gesto/issues"
     },
-    "homepage": "https://github.com/daybrush/gesture#readme",
+    "homepage": "https://github.com/daybrush/gesto#readme",
     "devDependencies": {
         "@daybrush/builder": "^0.1.1",
         "@daybrush/jsdoc": "^0.3.7",

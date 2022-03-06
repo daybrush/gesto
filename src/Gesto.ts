@@ -214,6 +214,7 @@ class Gesto extends EventEmitter<GestoEvents> {
                     // force false or already focused.
                     return false;
                 }
+                // no focus
                 if (
                     activeElement
                     && hasContentEditable
@@ -408,7 +409,9 @@ class Gesto extends EventEmitter<GestoEvents> {
         const store = this.getCurrentStore();
         const position = store[isAdd ? "addClients" : "getPosition"](clients);
 
-        this.isDrag = true;
+        if (position.deltaX || position.deltaY) {
+            this.isDrag = true;
+        }
 
         return {
             datas: this.datas,

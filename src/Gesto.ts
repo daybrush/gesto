@@ -23,6 +23,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     private targets: Array<Element | Window> = [];
     private prevTime: number = 0;
     private doubleFlag: boolean = false;
+    private _dragFlag = false;
 
     /**
      *
@@ -232,6 +233,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             this.clientStores = [new ClientStore(getEventClients(e))];
             this.flag = true;
             this.isDrag = false;
+            this._dragFlag = true;
             this.datas = {};
 
             if (preventRightClick && (e.which === 3 || e.button === 2)) {
@@ -246,6 +248,12 @@ class Gesto extends EventEmitter<GestoEvents> {
                 isTrusted,
                 isDouble: this.doubleFlag,
                 ...this.getCurrentStore().getPosition(),
+                preventDefault() {
+                    e.preventDefault();
+                },
+                preventDrag: () => {
+                    this._dragFlag = false;
+                },
             });
             if (result === false) {
                 this.initDrag();
@@ -283,20 +291,22 @@ class Gesto extends EventEmitter<GestoEvents> {
         const clients = getEventClients(e);
         const result = this.moveClients(clients, e, false);
 
-        if (this.pinchFlag || result.deltaX || result.deltaY) {
-            const dragResult = this.emit("drag", {
-                ...result,
-                isScroll: !!isScroll,
-                inputEvent: e,
-            });
+        if (this._dragFlag) {
+            if (this.pinchFlag || result.deltaX || result.deltaY) {
+                const dragResult = this.emit("drag", {
+                    ...result,
+                    isScroll: !!isScroll,
+                    inputEvent: e,
+                });
 
-            if (dragResult === false) {
-                this.stop();
-                return;
+                if (dragResult === false) {
+                    this.stop();
+                    return;
+                }
             }
-        }
-        if (this.pinchFlag) {
-            this.onPinch(e, clients);
+            if (this.pinchFlag) {
+                this.onPinch(e, clients);
+            }
         }
 
         this.getCurrentStore().addClients(clients);
@@ -310,7 +320,9 @@ class Gesto extends EventEmitter<GestoEvents> {
             removeEvent(container!, "touchstart", this.onDragStart);
         }
 
+
         this.flag = false;
+
 
         const position = this.getCurrentStore().getPosition();
 

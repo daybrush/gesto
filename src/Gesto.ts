@@ -163,7 +163,21 @@ class Gesto extends EventEmitter<GestoEvents> {
         return this;
     }
     /**
-     * Set the event data while dragging.
+     * Get the current event state while dragging.
+     */
+    public getCurrentEvent(inputEvent?: any) {
+        return {
+            datas: this.datas,
+            ...this._getPosition(),
+            movement: this.getMovement(),
+            isDrag: this.isDrag,
+            isPinch: this.isPinch,
+            isScroll: false,
+            inputEvent,
+        };
+    }
+    /**
+     * Get & Set the event data while dragging.
      */
     public getEventDatas() {
         return this.datas;
@@ -309,7 +323,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             }
         }
 
-        this.getCurrentStore().addClients(clients);
+        this.getCurrentStore().getPosition(clients, true);
     }
     public onDragEnd = (e?: any) => {
         if (!this.flag) {
@@ -324,8 +338,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         this.flag = false;
 
 
-        const position = this.getCurrentStore().getPosition();
-
+        const position = this._getPosition();
         const currentTime = now();
         const isDouble = !this.isDrag && this.doubleFlag;
 
@@ -418,8 +431,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         return this.clientStores[0];
     }
     private moveClients(clients: Client[], inputEvent: any, isAdd: boolean): TargetParam<OnDrag> {
-        const store = this.getCurrentStore();
-        const position = store[isAdd ? "addClients" : "getPosition"](clients);
+        const position = this._getPosition(clients, isAdd);
 
         if (position.deltaX || position.deltaY) {
             this.isDrag = true;
@@ -438,6 +450,25 @@ class Gesto extends EventEmitter<GestoEvents> {
     private onBlur = () => {
         this.onDragEnd();
     }
+    private _getPosition(clients?: Client[], isAdd?: boolean) {
+        const store = this.getCurrentStore();
+        const position = store.getPosition(clients, isAdd);
+
+        const { distX, distY } = this.clientStores.slice(1).reduce((prev, cur) => {
+            const storePosition = cur.getPosition();
+
+            prev.distX += storePosition.distX;
+            prev.distY += storePosition.distY;
+            return prev;
+        },  position);
+
+        return {
+            ...position,
+            distX,
+            distY,
+        };
+    }
+
 }
 
 export default Gesto;

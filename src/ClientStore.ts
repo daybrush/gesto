@@ -11,23 +11,21 @@ export class ClientStore {
         this.prevClients = clients;
         this.length = clients.length;
     }
-    public addClients(clients: Client[] = this.prevClients) {
-        const position = this.getPosition(clients);
-        const { deltaX, deltaY } = position;
-
-        this.movement += Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        this.prevClients = clients;
-
-        return position;
-    }
     public getAngle(clients: Client[] = this.prevClients) {
         return getRotatiion(clients);
     }
     public getRotation(clients: Client[] = this.prevClients) {
         return getRotatiion(clients) - getRotatiion(this.startClients);
     }
-    public getPosition(clients?: Client[]) {
-        return getPosition(clients || this.prevClients, this.prevClients, this.startClients);
+    public getPosition(clients: Client[] = this.prevClients, isAdd?: boolean) {
+        const position = getPosition(clients || this.prevClients, this.prevClients, this.startClients);
+
+        const { deltaX, deltaY } = position;
+
+        this.movement += Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        this.prevClients = clients;
+
+        return position;
     }
     public getPositions(clients: Client[] = this.prevClients) {
         const prevClients = this.prevClients;
@@ -55,10 +53,6 @@ export class ClientStore {
     }
     public move(deltaX: number, deltaY: number) {
         this.startClients.forEach(client => {
-            client.clientX -= deltaX;
-            client.clientY -= deltaY;
-        });
-        this.prevClients.forEach(client => {
             client.clientX -= deltaX;
             client.clientY -= deltaY;
         });

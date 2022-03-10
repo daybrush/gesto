@@ -1,6 +1,6 @@
 {
     "name": "gesto",
-    "version": "1.6.0",
+    "version": "1.7.0",
     "description": "You can set up drag, pinch events in any browser.",
     "main": "./dist/gesto.cjs.js",
     "module": "./dist/gesto.esm.js",
@@ -14,7 +14,8 @@
         "release": "npm run build && npm run doc && release --dirs=dist,doc",
         "release:init": "npm run build && npm run doc && release -i --dirs=dist,doc",
         "deploy": "gh-pages -d ./demo --dest=./ --add --remote origin",
-        "prerelease": "npm run build && prerelease --dirs=dist,doc"
+        "prerelease": "npm run build && prerelease --dirs=dist,doc",
+        "test:local": "npm run build && pvu --path=./ --distUpdate=../selecto --distPaths=declaration,dist"
     },
     "keywords": [
         "gesture",
@@ -42,6 +43,7 @@
         "@daybrush/release": "^0.2.4",
         "daybrush-jsdoc-template": "^1.6.0",
         "print-sizes": "^0.1.0",
+        "pvu": "^0.6.1",
         "tslint": "^5.15.0",
         "typescript": "^3.4.2"
     },

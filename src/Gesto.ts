@@ -37,6 +37,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             preventRightClick: true,
             preventDefault: true,
             checkWindowBlur: false,
+            keepDragging: false,
             pinchThreshold: 0,
             events: ["touch", "mouse"],
             ...options,
@@ -333,7 +334,12 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (this.isTouch && pinchOutside) {
             removeEvent(container!, "touchstart", this.onDragStart);
         }
+        if (this.pinchFlag) {
+            this.onPinchEnd(e);
+        }
+        const clients = getEventClients(e);
 
+        console.log(clients);
 
         this.flag = false;
 
@@ -352,9 +358,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             inputEvent: e,
             ...position,
         });
-        if (this.pinchFlag) {
-            this.onPinchEnd(e);
-        }
+
         this.clientStores = [];
     }
     public onPinchStart(e: TouchEvent) {
@@ -416,8 +420,6 @@ class Gesto extends EventEmitter<GestoEvents> {
             ...store.getPosition(),
             inputEvent: e,
         });
-        this.isPinch = false;
-        this.pinchFlag = false;
     }
 
     private initDrag() {

@@ -123,13 +123,25 @@ export interface OnPinchEnd<T = Gesto> extends Position, EmitterParam<T> {
  */
 export interface GestoOptions {
     container?: Window | Node | Element;
+    /**
+     * @default ["mouse", "touch"]
+     */
     events?: Array<"mouse" | "touch">;
     preventRightClick?: boolean;
     preventDefault?: boolean;
+    /**
+     * Prevents pinching when the drag is moved more than a certain distance. That distance allowance is pinchThreshold.
+     * @default 0
+     */
     pinchThreshold?: number;
     pinchOutside?: boolean;
     checkInput?: boolean;
     checkWindowBlur?: boolean;
+    /**
+     * Whether to keep dragging even when pinch ends
+     * @default false
+     */
+    keepDragging?: boolean;
 }
 
 /**

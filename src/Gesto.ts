@@ -37,6 +37,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             preventRightClick: true,
             preventDefault: true,
             checkWindowBlur: false,
+            keepDragging: false,
             pinchThreshold: 0,
             events: ["touch", "mouse"],
             ...options,
@@ -333,9 +334,17 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (this.isTouch && pinchOutside) {
             removeEvent(container!, "touchstart", this.onDragStart);
         }
+        if (this.pinchFlag) {
+            this.onPinchEnd(e);
+        }
+        const clients = getEventClients(e);
+        const clientsLength = clients.length;
 
-
-        this.flag = false;
+        if (clientsLength === 0 || !this.options.keepDragging) {
+            this.flag = false;
+        } else {
+            this._addStore(new ClientStore(clients));
+        }
 
 
         const position = this._getPosition();
@@ -344,18 +353,18 @@ class Gesto extends EventEmitter<GestoEvents> {
 
         this.prevTime = this.isDrag || isDouble ? 0 : currentTime;
 
-        this.emit("dragEnd", {
-            datas: this.datas,
-            isDouble,
-            isDrag: this.isDrag,
-            isClick: !this.isDrag,
-            inputEvent: e,
-            ...position,
-        });
-        if (this.pinchFlag) {
-            this.onPinchEnd(e);
+        if (!this.flag) {
+            this.emit("dragEnd", {
+                datas: this.datas,
+                isDouble,
+                isDrag: this.isDrag,
+                isClick: !this.isDrag,
+                inputEvent: e,
+                ...position,
+            });
+
+            this.clientStores = [];
         }
-        this.clientStores = [];
     }
     public onPinchStart(e: TouchEvent) {
         const { pinchThreshold } = this.options;
@@ -366,7 +375,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         const store = new ClientStore(getEventClients(e));
 
         this.pinchFlag = true;
-        this.clientStores.splice(0, 0, store);
+        this._addStore(store);
 
         const result = this.emit("pinchStart", {
             datas: this.datas,
@@ -416,8 +425,6 @@ class Gesto extends EventEmitter<GestoEvents> {
             ...store.getPosition(),
             inputEvent: e,
         });
-        this.isPinch = false;
-        this.pinchFlag = false;
     }
 
     private initDrag() {
@@ -449,6 +456,9 @@ class Gesto extends EventEmitter<GestoEvents> {
     }
     private onBlur = () => {
         this.onDragEnd();
+    }
+    private _addStore(store: ClientStore) {
+        this.clientStores.splice(0, 0, store);
     }
     private _getPosition(clients?: Client[], isAdd?: boolean) {
         const store = this.getCurrentStore();

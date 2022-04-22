@@ -840,6 +840,12 @@ version: 1.7.0
             removeEvent(container, "touchstart", _this.onDragStart);
           }
 
+          if (_this.pinchFlag) {
+            _this.onPinchEnd(e);
+          }
+
+          var clients = getEventClients(e);
+          console.log(clients);
           _this.flag = false;
 
           var position = _this._getPosition();
@@ -856,10 +862,6 @@ version: 1.7.0
             inputEvent: e
           }, position));
 
-          if (_this.pinchFlag) {
-            _this.onPinchEnd(e);
-          }
-
           _this.clientStores = [];
         };
 
@@ -874,6 +876,7 @@ version: 1.7.0
           preventRightClick: true,
           preventDefault: true,
           checkWindowBlur: false,
+          keepDragging: false,
           pinchThreshold: 0,
           events: ["touch", "mouse"]
         }, options);
@@ -1151,8 +1154,6 @@ version: 1.7.0
         }, store.getPosition(), {
           inputEvent: e
         }));
-        this.isPinch = false;
-        this.pinchFlag = false;
       };
 
       __proto.initDrag = function () {

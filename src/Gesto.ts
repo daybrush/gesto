@@ -337,7 +337,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (this.pinchFlag) {
             this.onPinchEnd(e);
         }
-        const clients = getEventClients(e);
+        const clients = e?.touches ? getEventClients(e) : [];
         const clientsLength = clients.length;
 
         if (clientsLength === 0 || !this.options.keepDragging) {

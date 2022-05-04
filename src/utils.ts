@@ -23,7 +23,9 @@ export function isMultiTouch(e: any): e is TouchEvent {
     return e.touches && e.touches.length >= 2;
 }
 export function getEventClients(e: any): Client[] {
-    if (e.touches) {
+    if (!e) {
+        return [];
+    } if (e.touches) {
         return getClients(e.touches);
     } else {
         return [getClient(e)];

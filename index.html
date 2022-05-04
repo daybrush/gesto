@@ -111,8 +111,8 @@
             </div>
         </div>
     </div>
-    <script src="../dist/gesto.js"></script>
-    <!-- <script src="./release/latest/dist/gesto.js"></script> -->
+    <!-- <script src="../dist/gesto.js"></script> -->
+    <script src="./release/latest/dist/gesto.js"></script>
     <script>
         let tx = 0;
         let ty = 0;
@@ -130,9 +130,14 @@
             target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
         }).on("pinchStart", e => {
             e.datas.scale = scale;
+            console.log("pinch start");
         }).on("pinch", e => {
             scale = e.datas.scale * e.scale;
             target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+        }).on("pinchEnd", e => {
+            console.log("pinch end");
+        }).on("dragEnd", e => {
+            console.log("drag end");
         });
     </script>
 </body>

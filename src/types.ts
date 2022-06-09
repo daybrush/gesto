@@ -128,6 +128,10 @@ export interface GestoOptions {
      */
     events?: Array<"mouse" | "touch">;
     preventRightClick?: boolean;
+    /**
+     * @default true
+     */
+    preventWheelClick?: boolean;
     preventDefault?: boolean;
     /**
      * Prevents pinching when the drag is moved more than a certain distance. That distance allowance is pinchThreshold.

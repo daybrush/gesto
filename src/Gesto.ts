@@ -35,6 +35,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             checkInput: false,
             container: elements.length > 1 ? window : elements[0],
             preventRightClick: true,
+            preventWheelClick: true,
             preventDefault: true,
             checkWindowBlur: false,
             keepDragging: false,
@@ -214,9 +215,24 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (!this.flag && e.cancelable === false) {
             return;
         }
-        const { container, pinchOutside, preventRightClick, preventDefault, checkInput } = this.options;
+        const {
+            container,
+            pinchOutside,
+            preventWheelClick,
+            preventRightClick,
+            preventDefault,
+            checkInput,
+        } = this.options;
         const isTouch = this.isTouch;
         const isDragStart = !this.flag;
+
+        if (
+            (preventWheelClick && (e.which === 2 || e.button === 1))
+            || (preventRightClick && (e.which === 3 || e.button === 2))
+        ) {
+            this.initDrag();
+            return false;
+        }
 
         if (isDragStart) {
             const activeElement = document.activeElement as HTMLElement;
@@ -251,10 +267,6 @@ class Gesto extends EventEmitter<GestoEvents> {
             this._dragFlag = true;
             this.datas = {};
 
-            if (preventRightClick && (e.which === 3 || e.button === 2)) {
-                this.initDrag();
-                return false;
-            }
             this.doubleFlag = now() - this.prevTime < 200;
 
             const result = this.emit("dragStart", {

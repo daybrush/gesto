@@ -1,5 +1,5 @@
 import { Client, Position } from "./types";
-import { IArrayFormat } from "@daybrush/utils";
+import { IArrayFormat, isNumber } from "@daybrush/utils";
 
 export function getRad(pos1: number[], pos2: number[]) {
     const distX = pos2[0] - pos1[0];
@@ -30,6 +30,9 @@ export function getEventClients(e: any): Client[] {
     } else {
         return [getClient(e)];
     }
+}
+export function isMouseEvent(e: any): e is MouseEvent {
+    return isNumber(e.button);
 }
 export function getPosition(clients: Client[], prevClients: Client[], startClients: Client[]): Position {
     const length = startClients.length;

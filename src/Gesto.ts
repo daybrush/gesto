@@ -1,6 +1,6 @@
 import { Client, OnDrag, GestoOptions, GestoEvents } from "./types";
 import {
-    getEventClients, isMultiTouch,
+    getEventClients, isMouseEvent, isMultiTouch,
 } from "./utils";
 import EventEmitter, { TargetParam } from "@scena/event-emitter";
 import { addEvent, removeEvent, now, IObject } from "@daybrush/utils";
@@ -24,6 +24,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     private prevTime: number = 0;
     private doubleFlag: boolean = false;
     private _dragFlag = false;
+    private _isMouseEvent = false;
 
     /**
      *
@@ -268,10 +269,12 @@ class Gesto extends EventEmitter<GestoEvents> {
             this.datas = {};
 
             this.doubleFlag = now() - this.prevTime < 200;
+            this._isMouseEvent = isMouseEvent(e);
 
             const result = this.emit("dragStart", {
                 datas: this.datas,
                 inputEvent: e,
+                isMouseEvent: this._isMouseEvent,
                 isTrusted,
                 isDouble: this.doubleFlag,
                 ...this.getCurrentStore().getPosition(),
@@ -371,6 +374,7 @@ class Gesto extends EventEmitter<GestoEvents> {
                 isDouble,
                 isDrag: this.isDrag,
                 isClick: !this.isDrag,
+                isMouseEvent: this._isMouseEvent,
                 inputEvent: e,
                 ...position,
             });
@@ -463,6 +467,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             isDrag: this.isDrag,
             isPinch: this.isPinch,
             isScroll: false,
+            isMouseEvent: this._isMouseEvent,
             inputEvent,
         };
     }

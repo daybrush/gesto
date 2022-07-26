@@ -32,7 +32,7 @@ export function getEventClients(e: any): Client[] {
     }
 }
 export function isMouseEvent(e: any): e is MouseEvent {
-    return isNumber(e.button);
+    return e && (e.type.indexOf("mouse") > -1 || "button" in e || "which" in e);
 }
 export function getPosition(clients: Client[], prevClients: Client[], startClients: Client[]): Position {
     const length = startClients.length;

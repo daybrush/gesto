@@ -130,6 +130,10 @@ export interface GestoOptions {
      * @default ["mouse", "touch"]
      */
     events?: Array<"mouse" | "touch">;
+    /**
+     * Whether to prevent dragging of the right mouse button
+     * @default true
+     */
     preventRightClick?: boolean;
     /**
      * @default true
@@ -141,14 +145,25 @@ export interface GestoOptions {
      * @default 0
      */
     pinchThreshold?: number;
-    pinchOutside?: boolean;
-    checkInput?: boolean;
-    checkWindowBlur?: boolean;
     /**
      * Whether to keep dragging even when pinch ends
      * @default false
      */
     keepDragging?: boolean;
+    /**
+     * Prevent click event on drag(mousemove, touchmove)
+     * @default false
+     */
+    preventClickEventOnDrag?: boolean;
+    /**
+     * Prevent click event on dragStart(mousedown, touchstart)
+     * @default false
+     */
+    preventClickEventOnDragStart?: boolean;
+    pinchOutside?: boolean;
+    checkInput?: boolean;
+    checkWindowBlur?: boolean;
+
 }
 
 /**

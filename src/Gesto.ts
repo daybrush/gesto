@@ -37,6 +37,8 @@ class Gesto extends EventEmitter<GestoEvents> {
             container: elements.length > 1 ? window : elements[0],
             preventRightClick: true,
             preventWheelClick: true,
+            preventClickEventOnDragStart: false,
+            preventClickEventOnDrag: false,
             preventDefault: true,
             checkWindowBlur: false,
             keepDragging: false,
@@ -57,7 +59,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             });
             addEvent(container!, "mousemove", this.onDrag);
             addEvent(container!, "mouseup", this.onDragEnd);
-            addEvent(container!, "contextmenu", this.onDragEnd);
+            addEvent(container!, "contextmenu", this._onContextMenu);
         }
         if (checkWindowBlur) {
             addEvent(window, "blur", this.onBlur);
@@ -89,7 +91,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     public getMovement(clients?: Client[]) {
         return this.getCurrentStore().getMovement(clients) + this.clientStores.slice(1).reduce((prev, cur) => {
             return prev + cur.movement;
-        },  0);
+        }, 0);
     }
     /**
      * Whether to drag
@@ -109,7 +111,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     public isPinchFlag() {
         return this.pinchFlag;
     }
-        /**
+    /**
      * Whether to start double click
      */
     public isDoubleFlag() {
@@ -200,7 +202,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             });
             removeEvent(container, "mousemove", this.onDrag);
             removeEvent(container, "mouseup", this.onDragEnd);
-            removeEvent(container, "contextmenu", this.onDragEnd);
+            removeEvent(container, "contextmenu", this._onContextMenu);
         }
         if (this.isTouch) {
             targets.forEach(target => {
@@ -223,6 +225,8 @@ class Gesto extends EventEmitter<GestoEvents> {
             preventRightClick,
             preventDefault,
             checkInput,
+            preventClickEventOnDragStart,
+            preventClickEventOnDrag
         } = this.options;
         const isTouch = this.isTouch;
         const isDragStart = !this.flag;
@@ -261,6 +265,10 @@ class Gesto extends EventEmitter<GestoEvents> {
                 if (activeElement.isContentEditable || INPUT_TAGNAMES.indexOf(activeTagName) > -1) {
                     activeElement.blur();
                 }
+            }
+
+            if (preventClickEventOnDragStart || preventClickEventOnDrag) {
+                addEvent(window, "click", this._onClick, true);
             }
             this.clientStores = [new ClientStore(getEventClients(e))];
             this.flag = true;
@@ -345,7 +353,23 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (!this.flag) {
             return;
         }
-        const { pinchOutside, container } = this.options;
+        const {
+            pinchOutside,
+            container,
+            preventClickEventOnDrag,
+            preventClickEventOnDragStart,
+        } = this.options;
+        const isDrag = this.isDrag;
+
+        if (preventClickEventOnDrag || preventClickEventOnDragStart) {
+            requestAnimationFrame(() => {
+                this._allowClickEvent();
+            });
+        }
+        if (preventClickEventOnDrag && !isDrag) {
+            this._allowClickEvent();
+        }
+
         if (this.isTouch && pinchOutside) {
             removeEvent(container!, "touchstart", this.onDragStart);
         }
@@ -364,16 +388,16 @@ class Gesto extends EventEmitter<GestoEvents> {
 
         const position = this._getPosition();
         const currentTime = now();
-        const isDouble = !this.isDrag && this.doubleFlag;
+        const isDouble = !isDrag && this.doubleFlag;
 
-        this.prevTime = this.isDrag || isDouble ? 0 : currentTime;
+        this.prevTime = isDrag || isDouble ? 0 : currentTime;
 
         if (!this.flag) {
             this.emit("dragEnd", {
                 datas: this.datas,
                 isDouble,
-                isDrag: this.isDrag,
-                isClick: !this.isDrag,
+                isDrag: isDrag,
+                isClick: !isDrag,
                 isMouseEvent: this._isMouseEvent,
                 inputEvent: e,
                 ...position,
@@ -487,7 +511,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             prev.distX += storePosition.distX;
             prev.distY += storePosition.distY;
             return prev;
-        },  position);
+        }, position);
 
         return {
             ...position,
@@ -495,7 +519,21 @@ class Gesto extends EventEmitter<GestoEvents> {
             distY,
         };
     }
-
+    private _allowClickEvent = () => {
+        removeEvent(window, "click", this._onClick, true);
+    };
+    private _onClick = (e: MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+    }
+    private _onContextMenu = (e: MouseEvent) => {
+        const options = this.options;
+        if (!options.preventRightClick) {
+            e.preventDefault();
+        } else {
+            this.onDragEnd(e);
+        }
+    }
 }
 
 export default Gesto;

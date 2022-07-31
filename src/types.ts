@@ -154,12 +154,12 @@ export interface GestoOptions {
      */
     keepDragging?: boolean;
     /**
-     * Prevent click event on drag(mousemove, touchmove)
+     * Prevent click event on drag. (mousemove, touchmove)
      * @default false
      */
     preventClickEventOnDrag?: boolean;
     /**
-     * Prevent click event on dragStart(mousedown, touchstart)
+     * Prevent click event on dragStart. (mousedown, touchstart)
      * @default false
      */
     preventClickEventOnDragStart?: boolean;

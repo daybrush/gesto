@@ -46,6 +46,7 @@ export interface OnDragStart<T = Gesto> extends Position, EmitterParam<T> {
     inputEvent: any;
     isTrusted: any;
     isMouseEvent: boolean;
+    isSecondaryButton: boolean;
     isDouble: boolean;
     preventDefault: () => void;
     preventDrag: () => void;
@@ -59,6 +60,7 @@ export interface OnDragStart<T = Gesto> extends Position, EmitterParam<T> {
 export interface OnDrag<T = Gesto> extends Position, EmitterParam<T> {
     isDrag: boolean;
     isMouseEvent: boolean;
+    isSecondaryButton: boolean;
     isPinch: boolean;
     movement: number;
     datas: IObject<any>;
@@ -75,6 +77,7 @@ export interface OnDragEnd<T = Gesto> extends Position, EmitterParam<T> {
     isDrag: boolean;
     isClick: boolean;
     isMouseEvent: boolean;
+    isSecondaryButton: boolean;
     isDouble: boolean;
     datas: IObject<any>;
     inputEvent: any;

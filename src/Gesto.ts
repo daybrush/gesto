@@ -25,6 +25,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     private doubleFlag: boolean = false;
     private _dragFlag = false;
     private _isMouseEvent = false;
+    private _isSecondaryButton = false;
 
     /**
      *
@@ -231,6 +232,8 @@ class Gesto extends EventEmitter<GestoEvents> {
         const isTouch = this.isTouch;
         const isDragStart = !this.flag;
 
+        this._isSecondaryButton = e.which === 3 || e.button === 2;
+
         if (
             (preventWheelClick && (e.which === 2 || e.button === 1))
             || (preventRightClick && (e.which === 3 || e.button === 2))
@@ -283,6 +286,7 @@ class Gesto extends EventEmitter<GestoEvents> {
                 datas: this.datas,
                 inputEvent: e,
                 isMouseEvent: this._isMouseEvent,
+                isSecondaryButton: this._isSecondaryButton,
                 isTrusted,
                 isDouble: this.doubleFlag,
                 ...this.getCurrentStore().getPosition(),
@@ -399,6 +403,7 @@ class Gesto extends EventEmitter<GestoEvents> {
                 isDrag: isDrag,
                 isClick: !isDrag,
                 isMouseEvent: this._isMouseEvent,
+                isSecondaryButton: this._isSecondaryButton,
                 inputEvent: e,
                 ...position,
             });
@@ -492,6 +497,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             isPinch: this.isPinch,
             isScroll: false,
             isMouseEvent: this._isMouseEvent,
+            isSecondaryButton: this._isSecondaryButton,
             inputEvent,
         };
     }

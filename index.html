@@ -124,6 +124,9 @@
             checkWindowBlur: true,
             keepDragging: true,
             pinchThreshold: Infinity,
+            preventRightClick: false,
+            // preventClickEventOnDragStart: true,
+            // preventClickEventOnDrag: true,
         }).on("drag", e => {
             tx += e.deltaX;
             ty += e.deltaY;

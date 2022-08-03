@@ -478,6 +478,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         this.doubleFlag = false;
         this.prevTime = 0;
         this.flag = false;
+        this._allowClickEvent();
     }
     private getCurrentStore() {
         return this.clientStores[0];

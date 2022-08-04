@@ -40,6 +40,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             preventWheelClick: true,
             preventClickEventOnDragStart: false,
             preventClickEventOnDrag: false,
+            preventClickEventByCondition: null,
             preventDefault: true,
             checkWindowBlur: false,
             keepDragging: false,
@@ -227,7 +228,8 @@ class Gesto extends EventEmitter<GestoEvents> {
             preventDefault,
             checkInput,
             preventClickEventOnDragStart,
-            preventClickEventOnDrag
+            preventClickEventOnDrag,
+            preventClickEventByCondition,
         } = this.options;
         const isTouch = this.isTouch;
         const isDragStart = !this.flag;
@@ -270,7 +272,7 @@ class Gesto extends EventEmitter<GestoEvents> {
                 }
             }
 
-            if (preventClickEventOnDragStart || preventClickEventOnDrag) {
+            if (preventClickEventOnDragStart || preventClickEventOnDrag || preventClickEventByCondition) {
                 addEvent(window, "click", this._onClick, true);
             }
             this.clientStores = [new ClientStore(getEventClients(e))];
@@ -362,15 +364,16 @@ class Gesto extends EventEmitter<GestoEvents> {
             container,
             preventClickEventOnDrag,
             preventClickEventOnDragStart,
+            preventClickEventByCondition,
         } = this.options;
         const isDrag = this.isDrag;
 
-        if (preventClickEventOnDrag || preventClickEventOnDragStart) {
+        if (preventClickEventOnDrag || preventClickEventOnDragStart || preventClickEventByCondition) {
             requestAnimationFrame(() => {
                 this._allowClickEvent();
             });
         }
-        if (preventClickEventOnDrag && !isDrag) {
+        if (!preventClickEventByCondition && !preventClickEventOnDragStart && preventClickEventOnDrag && !isDrag) {
             this._allowClickEvent();
         }
 
@@ -530,6 +533,10 @@ class Gesto extends EventEmitter<GestoEvents> {
         removeEvent(window, "click", this._onClick, true);
     };
     private _onClick = (e: MouseEvent) => {
+        const preventClickEventByCondition = this.options.preventClickEventByCondition;
+        if (preventClickEventByCondition?.(e)) {
+            return;
+        }
         e.stopPropagation();
         e.preventDefault();
     }

@@ -163,6 +163,12 @@ export interface GestoOptions {
      * @default false
      */
     preventClickEventOnDragStart?: boolean;
+    /**
+     * Prevent click event according to specific conditions.
+     * Returning true allows the click event, returning false prevents it.
+     * @default null
+     */
+    preventClickEventByCondition?: ((e: MouseEvent) => boolean) | null;
     pinchOutside?: boolean;
     checkInput?: boolean;
     checkWindowBlur?: boolean;

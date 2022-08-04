@@ -4,7 +4,7 @@ name: gesto
 license: MIT
 author: Daybrush
 repository: git+https://github.com/daybrush/gesto.git
-version: 1.12.0
+version: 1.11.2
 */
 'use strict';
 
@@ -318,8 +318,7 @@ function (_super) {
           preventDefault = _a.preventDefault,
           checkInput = _a.checkInput,
           preventClickEventOnDragStart = _a.preventClickEventOnDragStart,
-          preventClickEventOnDrag = _a.preventClickEventOnDrag,
-          preventClickEventByCondition = _a.preventClickEventByCondition;
+          preventClickEventOnDrag = _a.preventClickEventOnDrag;
       var isTouch = _this.isTouch;
       var isDragStart = !_this.flag;
       _this._isSecondaryButton = e.which === 3 || e.button === 2;
@@ -355,7 +354,7 @@ function (_super) {
           }
         }
 
-        if (preventClickEventOnDragStart || preventClickEventOnDrag || preventClickEventByCondition) {
+        if (preventClickEventOnDragStart || preventClickEventOnDrag) {
           utils.addEvent(window, "click", _this._onClick, true);
         }
 
@@ -461,17 +460,16 @@ function (_super) {
           pinchOutside = _a.pinchOutside,
           container = _a.container,
           preventClickEventOnDrag = _a.preventClickEventOnDrag,
-          preventClickEventOnDragStart = _a.preventClickEventOnDragStart,
-          preventClickEventByCondition = _a.preventClickEventByCondition;
+          preventClickEventOnDragStart = _a.preventClickEventOnDragStart;
       var isDrag = _this.isDrag;
 
-      if (preventClickEventOnDrag || preventClickEventOnDragStart || preventClickEventByCondition) {
+      if (preventClickEventOnDrag || preventClickEventOnDragStart) {
         requestAnimationFrame(function () {
           _this._allowClickEvent();
         });
       }
 
-      if (!preventClickEventByCondition && !preventClickEventOnDragStart && preventClickEventOnDrag && !isDrag) {
+      if (preventClickEventOnDrag && !isDrag) {
         _this._allowClickEvent();
       }
 
@@ -522,12 +520,6 @@ function (_super) {
     };
 
     _this._onClick = function (e) {
-      var preventClickEventByCondition = _this.options.preventClickEventByCondition;
-
-      if (preventClickEventByCondition === null || preventClickEventByCondition === void 0 ? void 0 : preventClickEventByCondition(e)) {
-        return;
-      }
-
       e.stopPropagation();
       e.preventDefault();
     };
@@ -550,7 +542,6 @@ function (_super) {
       preventWheelClick: true,
       preventClickEventOnDragStart: false,
       preventClickEventOnDrag: false,
-      preventClickEventByCondition: null,
       preventDefault: true,
       checkWindowBlur: false,
       keepDragging: false,

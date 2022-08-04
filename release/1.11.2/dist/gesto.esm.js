@@ -4,12 +4,10 @@ name: gesto
 license: MIT
 author: Daybrush
 repository: git+https://github.com/daybrush/gesto.git
-version: 1.12.0
+version: 1.11.2
 */
-'use strict';
-
-var EventEmitter = require('@scena/event-emitter');
-var utils = require('@daybrush/utils');
+import EventEmitter from '@scena/event-emitter';
+import { removeEvent, addEvent, now } from '@daybrush/utils';
 
 /*! *****************************************************************************
 Copyright (c) Microsoft Corporation. All rights reserved.
@@ -318,8 +316,7 @@ function (_super) {
           preventDefault = _a.preventDefault,
           checkInput = _a.checkInput,
           preventClickEventOnDragStart = _a.preventClickEventOnDragStart,
-          preventClickEventOnDrag = _a.preventClickEventOnDrag,
-          preventClickEventByCondition = _a.preventClickEventByCondition;
+          preventClickEventOnDrag = _a.preventClickEventOnDrag;
       var isTouch = _this.isTouch;
       var isDragStart = !_this.flag;
       _this._isSecondaryButton = e.which === 3 || e.button === 2;
@@ -355,8 +352,8 @@ function (_super) {
           }
         }
 
-        if (preventClickEventOnDragStart || preventClickEventOnDrag || preventClickEventByCondition) {
-          utils.addEvent(window, "click", _this._onClick, true);
+        if (preventClickEventOnDragStart || preventClickEventOnDrag) {
+          addEvent(window, "click", _this._onClick, true);
         }
 
         _this.clientStores = [new ClientStore(getEventClients(e))];
@@ -364,7 +361,7 @@ function (_super) {
         _this.isDrag = false;
         _this._dragFlag = true;
         _this.datas = {};
-        _this.doubleFlag = utils.now() - _this.prevTime < 200;
+        _this.doubleFlag = now() - _this.prevTime < 200;
         _this._isMouseEvent = isMouseEvent(e);
 
         var result = _this.emit("dragStart", __assign(__assign({
@@ -398,14 +395,14 @@ function (_super) {
 
       if (isDragStart && isTouch && pinchOutside) {
         timer = setTimeout(function () {
-          utils.addEvent(container, "touchstart", _this.onDragStart, {
+          addEvent(container, "touchstart", _this.onDragStart, {
             passive: false
           });
         });
       }
 
       if (!isDragStart && isTouch && pinchOutside) {
-        utils.removeEvent(container, "touchstart", _this.onDragStart);
+        removeEvent(container, "touchstart", _this.onDragStart);
       }
 
       if (_this.flag && isMultiTouch(e)) {
@@ -461,22 +458,21 @@ function (_super) {
           pinchOutside = _a.pinchOutside,
           container = _a.container,
           preventClickEventOnDrag = _a.preventClickEventOnDrag,
-          preventClickEventOnDragStart = _a.preventClickEventOnDragStart,
-          preventClickEventByCondition = _a.preventClickEventByCondition;
+          preventClickEventOnDragStart = _a.preventClickEventOnDragStart;
       var isDrag = _this.isDrag;
 
-      if (preventClickEventOnDrag || preventClickEventOnDragStart || preventClickEventByCondition) {
+      if (preventClickEventOnDrag || preventClickEventOnDragStart) {
         requestAnimationFrame(function () {
           _this._allowClickEvent();
         });
       }
 
-      if (!preventClickEventByCondition && !preventClickEventOnDragStart && preventClickEventOnDrag && !isDrag) {
+      if (preventClickEventOnDrag && !isDrag) {
         _this._allowClickEvent();
       }
 
       if (_this.isTouch && pinchOutside) {
-        utils.removeEvent(container, "touchstart", _this.onDragStart);
+        removeEvent(container, "touchstart", _this.onDragStart);
       }
 
       if (_this.pinchFlag) {
@@ -494,7 +490,7 @@ function (_super) {
 
       var position = _this._getPosition();
 
-      var currentTime = utils.now();
+      var currentTime = now();
       var isDouble = !isDrag && _this.doubleFlag;
       _this.prevTime = isDrag || isDouble ? 0 : currentTime;
 
@@ -518,16 +514,10 @@ function (_super) {
     };
 
     _this._allowClickEvent = function () {
-      utils.removeEvent(window, "click", _this._onClick, true);
+      removeEvent(window, "click", _this._onClick, true);
     };
 
     _this._onClick = function (e) {
-      var preventClickEventByCondition = _this.options.preventClickEventByCondition;
-
-      if (preventClickEventByCondition === null || preventClickEventByCondition === void 0 ? void 0 : preventClickEventByCondition(e)) {
-        return;
-      }
-
       e.stopPropagation();
       e.preventDefault();
     };
@@ -550,7 +540,6 @@ function (_super) {
       preventWheelClick: true,
       preventClickEventOnDragStart: false,
       preventClickEventOnDrag: false,
-      preventClickEventByCondition: null,
       preventDefault: true,
       checkWindowBlur: false,
       keepDragging: false,
@@ -567,15 +556,15 @@ function (_super) {
 
     if (_this.isMouse) {
       elements.forEach(function (el) {
-        utils.addEvent(el, "mousedown", _this.onDragStart);
+        addEvent(el, "mousedown", _this.onDragStart);
       });
-      utils.addEvent(container, "mousemove", _this.onDrag);
-      utils.addEvent(container, "mouseup", _this.onDragEnd);
-      utils.addEvent(container, "contextmenu", _this._onContextMenu);
+      addEvent(container, "mousemove", _this.onDrag);
+      addEvent(container, "mouseup", _this.onDragEnd);
+      addEvent(container, "contextmenu", _this._onContextMenu);
     }
 
     if (checkWindowBlur) {
-      utils.addEvent(window, "blur", _this.onBlur);
+      addEvent(window, "blur", _this.onBlur);
     }
 
     if (_this.isTouch) {
@@ -583,11 +572,11 @@ function (_super) {
         passive: false
       };
       elements.forEach(function (el) {
-        utils.addEvent(el, "touchstart", _this.onDragStart, passive_1);
+        addEvent(el, "touchstart", _this.onDragStart, passive_1);
       });
-      utils.addEvent(container, "touchmove", _this.onDrag, passive_1);
-      utils.addEvent(container, "touchend", _this.onDragEnd, passive_1);
-      utils.addEvent(container, "touchcancel", _this.onDragEnd, passive_1);
+      addEvent(container, "touchmove", _this.onDrag, passive_1);
+      addEvent(container, "touchend", _this.onDragEnd, passive_1);
+      addEvent(container, "touchcancel", _this.onDragEnd, passive_1);
     }
 
     return _this;
@@ -750,25 +739,25 @@ function (_super) {
     var targets = this.targets;
     var container = this.options.container;
     this.off();
-    utils.removeEvent(window, "blur", this.onBlur);
+    removeEvent(window, "blur", this.onBlur);
 
     if (this.isMouse) {
       targets.forEach(function (target) {
-        utils.removeEvent(target, "mousedown", _this.onDragStart);
+        removeEvent(target, "mousedown", _this.onDragStart);
       });
-      utils.removeEvent(container, "mousemove", this.onDrag);
-      utils.removeEvent(container, "mouseup", this.onDragEnd);
-      utils.removeEvent(container, "contextmenu", this._onContextMenu);
+      removeEvent(container, "mousemove", this.onDrag);
+      removeEvent(container, "mouseup", this.onDragEnd);
+      removeEvent(container, "contextmenu", this._onContextMenu);
     }
 
     if (this.isTouch) {
       targets.forEach(function (target) {
-        utils.removeEvent(target, "touchstart", _this.onDragStart);
+        removeEvent(target, "touchstart", _this.onDragStart);
       });
-      utils.removeEvent(container, "touchstart", this.onDragStart);
-      utils.removeEvent(container, "touchmove", this.onDrag);
-      utils.removeEvent(container, "touchend", this.onDragEnd);
-      utils.removeEvent(container, "touchcancel", this.onDragEnd);
+      removeEvent(container, "touchstart", this.onDragStart);
+      removeEvent(container, "touchmove", this.onDrag);
+      removeEvent(container, "touchend", this.onDragEnd);
+      removeEvent(container, "touchcancel", this.onDragEnd);
     }
   };
 
@@ -895,15 +884,5 @@ function (_super) {
   return Gesto;
 }(EventEmitter);
 
-
-
-var modules = ({
-    'default': Gesto
-});
-
-for (var name in modules) {
-  Gesto[name] = modules[name];
-}
-
-module.exports = Gesto;
-//# sourceMappingURL=gesto.cjs.js.map
+export default Gesto;
+//# sourceMappingURL=gesto.esm.js.map

@@ -26,6 +26,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     private _dragFlag = false;
     private _isMouseEvent = false;
     private _isSecondaryButton = false;
+    private _preventMouseEvent = false;
 
     /**
      *
@@ -283,8 +284,11 @@ class Gesto extends EventEmitter<GestoEvents> {
 
             this.doubleFlag = now() - this.prevTime < 200;
             this._isMouseEvent = isMouseEvent(e);
+            if (!this._isMouseEvent && this._preventMouseEvent) {
+                this._preventMouseEvent = false;
+            }
 
-            const result = this.emit("dragStart", {
+            const result = this._preventMouseEvent || this.emit("dragStart", {
                 datas: this.datas,
                 inputEvent: e,
                 isMouseEvent: this._isMouseEvent,
@@ -302,7 +306,9 @@ class Gesto extends EventEmitter<GestoEvents> {
             if (result === false) {
                 this.initDrag();
             }
-            this.flag && preventDefault && e.preventDefault();
+            if (this._isMouseEvent && this.flag && preventDefault) {
+                e.preventDefault();
+            }
         }
         if (!this.flag) {
             return false;
@@ -332,12 +338,18 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (!this.flag) {
             return;
         }
+        const {
+            preventDefault,
+        } = this.options;
+        if (!this._isMouseEvent && preventDefault) {
+            e.preventDefault();
+        }
         const clients = getEventClients(e);
         const result = this.moveClients(clients, e, false);
 
         if (this._dragFlag) {
             if (this.pinchFlag || result.deltaX || result.deltaY) {
-                const dragResult = this.emit("drag", {
+                const dragResult = this._preventMouseEvent || this.emit("drag", {
                     ...result,
                     isScroll: !!isScroll,
                     inputEvent: e,
@@ -400,7 +412,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         this.prevTime = isDrag || isDouble ? 0 : currentTime;
 
         if (!this.flag) {
-            this.emit("dragEnd", {
+            this._preventMouseEvent || this.emit("dragEnd", {
                 datas: this.datas,
                 isDouble,
                 isDrag: isDrag,
@@ -412,6 +424,15 @@ class Gesto extends EventEmitter<GestoEvents> {
             });
 
             this.clientStores = [];
+
+            if (!this._isMouseEvent) {
+                this._preventMouseEvent = true;
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        this._preventMouseEvent = false;
+                    });
+                });
+            }
         }
     }
     public onPinchStart(e: TouchEvent) {
@@ -533,6 +554,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         removeEvent(window, "click", this._onClick, true);
     };
     private _onClick = (e: MouseEvent) => {
+        this._preventMouseEvent = false;
         const preventClickEventByCondition = this.options.preventClickEventByCondition;
         if (preventClickEventByCondition?.(e)) {
             return;

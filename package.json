@@ -1,6 +1,6 @@
 {
     "name": "gesto",
-    "version": "1.12.0",
+    "version": "1.12.1",
     "description": "You can set up drag, pinch events in any browser.",
     "main": "./dist/gesto.cjs.js",
     "module": "./dist/gesto.esm.js",

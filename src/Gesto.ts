@@ -59,9 +59,8 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (this.isMouse) {
             elements.forEach(el => {
                 addEvent(el, "mousedown", this.onDragStart);
+                addEvent(el, "mousemove", this._passCallback);
             });
-            addEvent(container!, "mousemove", this.onDrag);
-            addEvent(container!, "mouseup", this.onDragEnd);
             addEvent(container!, "contextmenu", this._onContextMenu);
         }
         if (checkWindowBlur) {
@@ -73,10 +72,8 @@ class Gesto extends EventEmitter<GestoEvents> {
             };
             elements.forEach(el => {
                 addEvent(el, "touchstart", this.onDragStart, passive);
+                addEvent(el, "touchmove", this._passCallback, passive);
             });
-            addEvent(container!, "touchmove", this.onDrag, passive);
-            addEvent(container!, "touchend", this.onDragEnd, passive);
-            addEvent(container!, "touchcancel", this.onDragEnd, passive);
         }
     }
     /**
@@ -84,9 +81,15 @@ class Gesto extends EventEmitter<GestoEvents> {
      */
     public stop() {
         this.isDrag = false;
-        this.flag = false;
-        this.clientStores = [];
         this.datas = {};
+        this.clientStores = [];
+        this.pinchFlag = false;
+        this.doubleFlag = false;
+        this.prevTime = 0;
+        this.flag = false;
+
+        this._allowClickEvent();
+        this._dettachDragEvent();
     }
     /**
      * The total moved distance
@@ -203,8 +206,6 @@ class Gesto extends EventEmitter<GestoEvents> {
             targets.forEach(target => {
                 removeEvent(target, "mousedown", this.onDragStart);
             });
-            removeEvent(container, "mousemove", this.onDrag);
-            removeEvent(container, "mouseup", this.onDragEnd);
             removeEvent(container, "contextmenu", this._onContextMenu);
         }
         if (this.isTouch) {
@@ -212,10 +213,8 @@ class Gesto extends EventEmitter<GestoEvents> {
                 removeEvent(target, "touchstart", this.onDragStart);
             });
             removeEvent(container, "touchstart", this.onDragStart);
-            removeEvent(container, "touchmove", this.onDrag);
-            removeEvent(container, "touchend", this.onDragEnd);
-            removeEvent(container, "touchcancel", this.onDragEnd);
         }
+        this._dettachDragEvent();
     }
     public onDragStart = (e: any, isTrusted = true) => {
         if (!this.flag && e.cancelable === false) {
@@ -241,7 +240,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             (preventWheelClick && (e.which === 2 || e.button === 1))
             || (preventRightClick && (e.which === 3 || e.button === 2))
         ) {
-            this.initDrag();
+            this.stop();
             return false;
         }
 
@@ -304,7 +303,7 @@ class Gesto extends EventEmitter<GestoEvents> {
                 },
             });
             if (result === false) {
-                this.initDrag();
+                this.stop();
             }
             if (this._isMouseEvent && this.flag && preventDefault) {
                 e.preventDefault();
@@ -315,12 +314,19 @@ class Gesto extends EventEmitter<GestoEvents> {
         }
         let timer = 0;
 
-        if (isDragStart && isTouch && pinchOutside) {
-            timer = setTimeout(() => {
-                addEvent(container!, "touchstart", this.onDragStart, { passive: false });
-            });
-        }
-        if (!isDragStart && isTouch && pinchOutside) {
+        if (isDragStart) {
+            this._attchDragEvent();
+
+            // wait pinch
+            if (isTouch && pinchOutside) {
+                timer = setTimeout(() => {
+                    addEvent(container!, "touchstart", this.onDragStart, {
+                        passive: false
+                    });
+                });
+            }
+        } else if (isTouch && pinchOutside) {
+            // pinch is occured
             removeEvent(container!, "touchstart", this.onDragStart);
         }
         if (this.flag && isMultiTouch(e)) {
@@ -412,6 +418,8 @@ class Gesto extends EventEmitter<GestoEvents> {
         this.prevTime = isDrag || isDouble ? 0 : currentTime;
 
         if (!this.flag) {
+            this._dettachDragEvent();
+
             this._preventMouseEvent || this.emit("dragEnd", {
                 datas: this.datas,
                 isDouble,
@@ -495,15 +503,6 @@ class Gesto extends EventEmitter<GestoEvents> {
             inputEvent: e,
         });
     }
-
-    private initDrag() {
-        this.clientStores = [];
-        this.pinchFlag = false;
-        this.doubleFlag = false;
-        this.prevTime = 0;
-        this.flag = false;
-        this._allowClickEvent();
-    }
     private getCurrentStore() {
         return this.clientStores[0];
     }
@@ -553,6 +552,38 @@ class Gesto extends EventEmitter<GestoEvents> {
     private _allowClickEvent = () => {
         removeEvent(window, "click", this._onClick, true);
     };
+    private _attchDragEvent() {
+        const container = this.options.container!;
+        const passive = {
+            passive: false
+        };
+
+        if (this.isMouse) {
+            addEvent(container, "mousemove", this.onDrag);
+            addEvent(container, "mouseup", this.onDragEnd);
+        }
+
+        if (this.isTouch) {
+            addEvent(container, "touchmove", this.onDrag, passive);
+            addEvent(container, "touchend", this.onDragEnd, passive);
+            addEvent(container, "touchcancel", this.onDragEnd, passive);
+        }
+    };
+    private _dettachDragEvent() {
+        const container = this.options.container!;
+
+        if (this.isMouse) {
+            removeEvent(container, "mousemove", this.onDrag);
+            removeEvent(container, "mouseup", this.onDragEnd);
+        }
+
+        if (this.isTouch) {
+            removeEvent(container, "touchstart", this.onDragStart);
+            removeEvent(container, "touchmove", this.onDrag);
+            removeEvent(container, "touchend", this.onDragEnd);
+            removeEvent(container, "touchcancel", this.onDragEnd);
+        }
+    };
     private _onClick = (e: MouseEvent) => {
         this._preventMouseEvent = false;
         const preventClickEventByCondition = this.options.preventClickEventByCondition;
@@ -570,6 +601,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             this.onDragEnd(e);
         }
     }
+    private _passCallback = () => {};
 }
 
 export default Gesto;

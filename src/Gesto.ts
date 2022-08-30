@@ -14,7 +14,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     public options: GestoOptions = {};
     private flag = false;
     private pinchFlag = false;
-    private datas: IObject<any> = {};
+    private data: IObject<any> = {};
     private isDrag = false;
     private isPinch = false;
     private isMouse = false;
@@ -81,7 +81,7 @@ class Gesto extends EventEmitter<GestoEvents> {
      */
     public stop() {
         this.isDrag = false;
-        this.datas = {};
+        this.data = {};
         this.clientStores = [];
         this.pinchFlag = false;
         this.doubleFlag = false;
@@ -165,20 +165,29 @@ class Gesto extends EventEmitter<GestoEvents> {
     /**
      * Set the event data while dragging.
      */
-    public setEventDatas(datas: IObject<any>) {
-        const currentDatas = this.datas;
+    public setEventData(data: IObject<any>) {
+        const currentData = this.data;
 
-        for (const name in datas) {
-            currentDatas[name] = datas[name];
+        for (const name in data) {
+            currentData[name] = data[name];
         }
         return this;
+    }
+    /**
+     * Set the event data while dragging.
+     * Use `setEventData`
+     * @deprecated
+     */
+    public setEventDatas(data: IObject<any>) {
+        return this.setEventData(data);
     }
     /**
      * Get the current event state while dragging.
      */
     public getCurrentEvent(inputEvent?: any) {
         return {
-            datas: this.datas,
+            data: this.data,
+            datas: this.data,
             ...this._getPosition(),
             movement: this.getMovement(),
             isDrag: this.isDrag,
@@ -190,8 +199,16 @@ class Gesto extends EventEmitter<GestoEvents> {
     /**
      * Get & Set the event data while dragging.
      */
+    public getEventData() {
+        return this.data;
+    }
+    /**
+     * Get & Set the event data while dragging.
+     * Use getEventData method
+     * @depreacated
+     */
     public getEventDatas() {
-        return this.datas;
+        return this.data;
     }
     /**
      * Unset Gesto
@@ -279,7 +296,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             this.flag = true;
             this.isDrag = false;
             this._dragFlag = true;
-            this.datas = {};
+            this.data = {};
 
             this.doubleFlag = now() - this.prevTime < 200;
             this._isMouseEvent = isMouseEvent(e);
@@ -288,7 +305,8 @@ class Gesto extends EventEmitter<GestoEvents> {
             }
 
             const result = this._preventMouseEvent || this.emit("dragStart", {
-                datas: this.datas,
+                data: this.data,
+                datas: this.data,
                 inputEvent: e,
                 isMouseEvent: this._isMouseEvent,
                 isSecondaryButton: this._isSecondaryButton,
@@ -421,7 +439,8 @@ class Gesto extends EventEmitter<GestoEvents> {
             this._dettachDragEvent();
 
             this._preventMouseEvent || this.emit("dragEnd", {
-                datas: this.datas,
+                data: this.data,
+                datas: this.data,
                 isDouble,
                 isDrag: isDrag,
                 isClick: !isDrag,
@@ -455,7 +474,8 @@ class Gesto extends EventEmitter<GestoEvents> {
         this._addStore(store);
 
         const result = this.emit("pinchStart", {
-            datas: this.datas,
+            data: this.data,
+            datas: this.data,
             angle: store.getAngle(),
             touches: this.getCurrentStore().getPositions(),
             ...store.getPosition(),
@@ -475,7 +495,8 @@ class Gesto extends EventEmitter<GestoEvents> {
         this.isPinch = true;
 
         this.emit("pinch", {
-            datas: this.datas,
+            data: this.data,
+            datas: this.data,
             movement: this.getMovement(clients),
             angle: store.getAngle(clients),
             rotation: store.getRotation(clients),
@@ -496,7 +517,8 @@ class Gesto extends EventEmitter<GestoEvents> {
         this.pinchFlag = false;
         const store = this.getCurrentStore();
         this.emit("pinchEnd", {
-            datas: this.datas,
+            data: this.data,
+            datas: this.data,
             isPinch,
             touches: store.getPositions(),
             ...store.getPosition(),
@@ -514,7 +536,8 @@ class Gesto extends EventEmitter<GestoEvents> {
         }
 
         return {
-            datas: this.datas,
+            data: this.data,
+            datas: this.data,
             ...position,
             movement: this.getMovement(clients),
             isDrag: this.isDrag,

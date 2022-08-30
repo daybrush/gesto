@@ -43,6 +43,7 @@ export interface Position extends Client, Dist, Delta {}
  */
 export interface OnDragStart<T = Gesto> extends Position, EmitterParam<T> {
     datas: IObject<any>;
+    data: IObject<any>;
     inputEvent: any;
     isTrusted: any;
     isMouseEvent: boolean;
@@ -64,6 +65,7 @@ export interface OnDrag<T = Gesto> extends Position, EmitterParam<T> {
     isPinch: boolean;
     movement: number;
     datas: IObject<any>;
+    data: IObject<any>;
     isScroll: boolean;
     inputEvent: any;
 }
@@ -80,6 +82,7 @@ export interface OnDragEnd<T = Gesto> extends Position, EmitterParam<T> {
     isSecondaryButton: boolean;
     isDouble: boolean;
     datas: IObject<any>;
+    data: IObject<any>;
     inputEvent: any;
 }
 /**
@@ -90,6 +93,7 @@ export interface OnDragEnd<T = Gesto> extends Position, EmitterParam<T> {
  */
 export interface OnPinchStart<T = Gesto> extends Position, EmitterParam<T> {
     datas: IObject<any>;
+    data: IObject<any>;
     touches: Position[];
     angle: number;
     inputEvent: any;
@@ -102,6 +106,7 @@ export interface OnPinchStart<T = Gesto> extends Position, EmitterParam<T> {
  */
 export interface OnPinch<T = Gesto> extends Position, EmitterParam<T> {
     datas: IObject<any>;
+    data: IObject<any>;
     touches: Position[];
     rotation: number;
     angle: number;
@@ -119,6 +124,7 @@ export interface OnPinch<T = Gesto> extends Position, EmitterParam<T> {
 export interface OnPinchEnd<T = Gesto> extends Position, EmitterParam<T> {
     isPinch: boolean;
     datas: IObject<any>;
+    data: IObject<any>;
     touches: Position[];
     inputEvent: any;
 }

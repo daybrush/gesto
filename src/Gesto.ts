@@ -264,33 +264,36 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (isDragStart) {
             const activeElement = document.activeElement as HTMLElement;
             const target = e.target as HTMLElement;
-            const tagName = target.tagName.toLowerCase();
-            const hasInput = INPUT_TAGNAMES.indexOf(tagName) > -1;
-            const hasContentEditable = target.isContentEditable;
 
-            if (hasInput || hasContentEditable) {
-                if (checkInput || activeElement === target) {
-                    // force false or already focused.
-                    return false;
-                }
-                // no focus
-                if (
-                    activeElement
-                    && hasContentEditable
-                    && activeElement.isContentEditable
-                    && activeElement.contains(target)
-                ) {
-                    return false;
-                }
-            } else if ((preventDefault || e.type === "touchstart") && activeElement) {
-                const activeTagName = activeElement.tagName;
-                if (activeElement.isContentEditable || INPUT_TAGNAMES.indexOf(activeTagName) > -1) {
-                    activeElement.blur();
-                }
-            }
+           if (target) {
+                const tagName = target.tagName.toLowerCase();
+                const hasInput = INPUT_TAGNAMES.indexOf(tagName) > -1;
+                const hasContentEditable = target.isContentEditable;
 
-            if (preventClickEventOnDragStart || preventClickEventOnDrag || preventClickEventByCondition) {
-                addEvent(window, "click", this._onClick, true);
+                if (hasInput || hasContentEditable) {
+                    if (checkInput || activeElement === target) {
+                        // force false or already focused.
+                        return false;
+                    }
+                    // no focus
+                    if (
+                        activeElement
+                        && hasContentEditable
+                        && activeElement.isContentEditable
+                        && activeElement.contains(target)
+                    ) {
+                        return false;
+                    }
+                } else if ((preventDefault || e.type === "touchstart") && activeElement) {
+                    const activeTagName = activeElement.tagName;
+                    if (activeElement.isContentEditable || INPUT_TAGNAMES.indexOf(activeTagName) > -1) {
+                        activeElement.blur();
+                    }
+                }
+
+                if (preventClickEventOnDragStart || preventClickEventOnDrag || preventClickEventByCondition) {
+                    addEvent(window, "click", this._onClick, true);
+                }
             }
             this.clientStores = [new ClientStore(getEventClients(e))];
             this.flag = true;

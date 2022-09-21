@@ -285,7 +285,8 @@ class Gesto extends EventEmitter<GestoEvents> {
                         return false;
                     }
                 } else if ((preventDefault || e.type === "touchstart") && activeElement) {
-                    const activeTagName = activeElement.tagName;
+                    const activeTagName = activeElement.tagName.toLowerCase();
+
                     if (activeElement.isContentEditable || INPUT_TAGNAMES.indexOf(activeTagName) > -1) {
                         activeElement.blur();
                     }

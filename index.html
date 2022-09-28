@@ -118,6 +118,9 @@
         let ty = 0;
         let scale = 1;
 
+        // document.addEventListener("click", () => {
+        //     console.log("DOC CLICK");
+        // });
         const gesto = new Gesto(target, {
             container: window,
             pinchOutside: true,
@@ -126,7 +129,7 @@
             pinchThreshold: Infinity,
             preventRightClick: false,
             // preventClickEventOnDragStart: true,
-            // preventClickEventOnDrag: true,
+            preventClickEventOnDrag: true,
         }).on("drag", e => {
             tx += e.deltaX;
             ty += e.deltaY;

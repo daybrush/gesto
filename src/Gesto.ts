@@ -231,6 +231,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             });
             removeEvent(container, "touchstart", this.onDragStart);
         }
+        this._allowClickEvent();
         this._dettachDragEvent();
     }
     public onDragStart = (e: any, isTrusted = true) => {
@@ -612,6 +613,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         }
     };
     private _onClick = (e: MouseEvent) => {
+        this._allowClickEvent();
         this._preventMouseEvent = false;
         const preventClickEventByCondition = this.options.preventClickEventByCondition;
         if (preventClickEventByCondition?.(e)) {

@@ -56,5 +56,9 @@ export class ClientStore {
             client.clientX -= deltaX;
             client.clientY -= deltaY;
         });
+        this.prevClients.forEach(client => {
+            client.clientX -= deltaX;
+            client.clientY -= deltaY;
+        });
     }
 }

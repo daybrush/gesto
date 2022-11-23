@@ -536,8 +536,15 @@ class Gesto extends EventEmitter<GestoEvents> {
     private moveClients(clients: Client[], inputEvent: any, isAdd: boolean): TargetParam<OnDrag> {
         const position = this._getPosition(clients, isAdd);
 
+        const isPrevDrag = this.isDrag;
+
         if (position.deltaX || position.deltaY) {
             this.isDrag = true;
+        }
+        let isFirstDrag = false;
+
+        if (!isPrevDrag && this.isDrag) {
+            isFirstDrag = true;
         }
 
         return {
@@ -551,6 +558,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             isMouseEvent: this._isMouseEvent,
             isSecondaryButton: this._isSecondaryButton,
             inputEvent,
+            isFirstDrag,
         };
     }
     private onBlur = () => {

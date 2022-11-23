@@ -67,6 +67,7 @@ export interface OnDrag<T = Gesto> extends Position, EmitterParam<T> {
     datas: IObject<any>;
     data: IObject<any>;
     isScroll: boolean;
+    isFirstDrag: boolean;
     inputEvent: any;
 }
 /**

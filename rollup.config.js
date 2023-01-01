@@ -1,6 +1,6 @@
-import builder from "@daybrush/builder";
+const builder = require("@daybrush/builder");
 
-export default builder([
+module.exports = builder([
   {
     name: "Gesto",
     input: "src/index.umd.ts",

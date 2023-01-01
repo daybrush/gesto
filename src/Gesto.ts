@@ -24,6 +24,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     private prevTime: number = 0;
     private doubleFlag: boolean = false;
     private _dragFlag = false;
+    private _isTrusted = false;
     private _isMouseEvent = false;
     private _isSecondaryButton = false;
     private _preventMouseEvent = false;
@@ -300,6 +301,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             this.clientStores = [new ClientStore(getEventClients(e))];
             this.flag = true;
             this.isDrag = false;
+            this._isTrusted = isTrusted;
             this._dragFlag = true;
             this.data = {};
 
@@ -452,6 +454,7 @@ class Gesto extends EventEmitter<GestoEvents> {
                 isMouseEvent: this._isMouseEvent,
                 isSecondaryButton: this._isSecondaryButton,
                 inputEvent: e,
+                isTrusted: this._isTrusted,
                 ...position,
             });
 
@@ -485,6 +488,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             touches: this.getCurrentStore().getPositions(),
             ...store.getPosition(),
             inputEvent: e,
+            isTrusted: this._isTrusted,
         });
 
         if (result === false) {
@@ -510,6 +514,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             distance: store.getDistance(clients),
             ...store.getPosition(clients),
             inputEvent: e,
+            isTrusted: this._isTrusted,
         });
     }
     public onPinchEnd(e: TouchEvent) {
@@ -558,6 +563,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             isMouseEvent: this._isMouseEvent,
             isSecondaryButton: this._isSecondaryButton,
             inputEvent,
+            isTrusted: this._isTrusted,
             isFirstDrag,
         };
     }

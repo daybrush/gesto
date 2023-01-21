@@ -37,8 +37,10 @@ export function isMouseEvent(e: any): e is MouseEvent {
 export function getPosition(clients: Client[], prevClients: Client[], startClients: Client[]): Position {
     const length = startClients.length;
     const {
-        clientX, clientY,
-        originalClientX, originalClientY,
+        clientX,
+        clientY,
+        originalClientX,
+        originalClientY,
     } = getAverageClient(clients, length);
     const {
         clientX: prevX,

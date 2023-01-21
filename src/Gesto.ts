@@ -28,6 +28,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     private _isMouseEvent = false;
     private _isSecondaryButton = false;
     private _preventMouseEvent = false;
+    private _prevInputEvent: any = null;
 
     /**
      *
@@ -185,7 +186,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     /**
      * Get the current event state while dragging.
      */
-    public getCurrentEvent(inputEvent?: any) {
+    public getCurrentEvent(inputEvent: any = this._prevInputEvent) {
         return {
             data: this.data,
             datas: this.data,
@@ -232,6 +233,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             });
             removeEvent(container, "touchstart", this.onDragStart);
         }
+        this._prevInputEvent = null;
         this._allowClickEvent();
         this._dettachDragEvent();
     }
@@ -303,6 +305,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             this.isDrag = false;
             this._isTrusted = isTrusted;
             this._dragFlag = true;
+            this._prevInputEvent = e;
             this.data = {};
 
             this.doubleFlag = now() - this.prevTime < 200;
@@ -375,6 +378,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (!this._isMouseEvent && preventDefault) {
             e.preventDefault();
         }
+        this._prevInputEvent = e;
         const clients = getEventClients(e);
         const result = this.moveClients(clients, e, false);
 
@@ -440,6 +444,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         const currentTime = now();
         const isDouble = !isDrag && this.doubleFlag;
 
+        this._prevInputEvent = null;
         this.prevTime = isDrag || isDouble ? 0 : currentTime;
 
         if (!this.flag) {

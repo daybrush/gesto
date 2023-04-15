@@ -494,6 +494,12 @@ class Gesto extends EventEmitter<GestoEvents> {
             ...store.getPosition(),
             inputEvent: e,
             isTrusted: this._isTrusted,
+            preventDefault() {
+                e.preventDefault();
+            },
+            preventDrag: () => {
+                this._dragFlag = false;
+            },
         });
 
         if (result === false) {

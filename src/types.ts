@@ -101,6 +101,8 @@ export interface OnPinchStart<T = Gesto> extends Position, EmitterParam<T> {
     angle: number;
     inputEvent: any;
     isTrusted: boolean;
+    preventDefault: () => void;
+    preventDrag: () => void;
 }
 /**
  * @typedef

@@ -183,7 +183,17 @@ export interface GestoOptions {
      */
     preventClickEventByCondition?: ((e: MouseEvent) => boolean) | null;
     pinchOutside?: boolean;
+    /**
+     * Prevent dragging of `input`, `textarea`, and contenteditable.
+     * @default false
+     */
     checkInput?: boolean;
+    /**
+     * Whether to drag the focused input
+     * If `checkInput` is true, this option is not applied.
+     * @default false
+     */
+    dragFocusedInput?: boolean;
     checkWindowBlur?: boolean;
 
 }

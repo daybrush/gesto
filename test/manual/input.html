@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Gesto</title>
+    <meta name="description" content="You can set up drag, pinch events in any browser.">
+    <meta name="keywords" content="gesto,javascript,gesture,pinch,drag">
+
+    <style>
+        a {
+            text-decoration: none;
+        }
+        html,
+        body {
+            position: relative;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: sans-serif;
+        }
+        .wrapper {
+            position: relative;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            min-height: 500px;
+        }
+        .header {
+            position: relative;
+            height: 200px;
+            width: calc(100% - 60px);
+            border-bottom: 1px solid #e5e5e5;
+            margin: auto;
+        }
+
+        #target {
+            position: absolute;
+            width: 200px;
+            height: 150px;
+            line-height: 150px;
+            background: #333;
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+            font-family: sans-serif;
+            text-align: center;
+            top: 50%;
+            left: 50%;
+            margin-left: -100px;
+            margin-top: -75px;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            padding: 10px 20px;
+            box-sizing: border-box;
+            max-width: 800px;
+            margin: auto;
+        }
+        .buttons {
+
+            margin: 0;
+            padding: 10px;
+        }
+
+        .buttons a {
+            margin: 0;
+            position: relative;
+            text-decoration: none;
+            color: #333;
+            border: 1px solid #333;
+            padding: 12px 30px;
+            min-width: 140px;
+            text-align: center;
+            display: inline-block;
+            box-sizing: border-box;
+            margin: 5px;
+            transition: all ease 0.5s;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <input id="target" />
+        </div>
+        <div class="container">
+            <h1>Gesto</h1>
+            <p class="description">You can set up drag, pinch events in any browser.</p>
+            <p class="badges">
+                <a href="https://www.npmjs.com/package/gesto" target="_blank">
+                    <img src="https://img.shields.io/npm/v/gesto.svg?style=flat-square&amp;color=007acc&amp;label=version" alt="npm version"></a>
+                <a href="https://github.com/daybrush/gesto" target="_blank">
+                    <img src="https://img.shields.io/github/stars/daybrush/gesto.svg?color=42b883&amp;style=flat-square"></a>
+                <a href="https://github.com/daybrush/gesto" target="_blank">
+                    <img src="https://img.shields.io/badge/language-typescript-blue.svg?style=flat-square">
+                </a>
+                <a href="https://github.com/daybrush/gesto/blob/master/LICENSE" target="_blank">
+                    <img src="https://img.shields.io/github/license/daybrush/gesto.svg?style=flat-square&amp;label=license&amp;color=08CE5D">
+                </a>
+            </p>
+            <div class="buttons">
+                <a href="https://github.com/daybrush/gesto" target="_blank">Download</a>
+                <a href="https://daybrush.com/gesto/release/latest/doc/" target="_blank">API</a>
+            </div>
+        </div>
+    </div>
+    <script src="../../dist/gesto.js"></script>
+    <script>
+        let tx = 0;
+        let ty = 0;
+        let scale = 1;
+
+        document.querySelector(".header").addEventListener("click", e => {
+            console.log("CLICK");
+        });
+
+        const gesto = new Gesto(target, {
+            container: window,
+            pinchOutside: true,
+            checkWindowBlur: true,
+            keepDragging: true,
+            checkInput: false,
+            dragFocusedInput: true,
+            pinchThreshold: Infinity,
+            preventRightClick: false,
+            // preventDefault: false,
+            // preventClickEventOnDragStart: true,
+            preventClickEventOnDrag: true,
+        }).on("dragStart", e => {
+            console.log("START", e.inputEvent);
+        }).on("drag", e => {
+            tx += e.deltaX;
+            ty += e.deltaY;
+            target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+        }).on("pinchStart", e => {
+            e.datas.scale = scale;
+            console.log("pinch start");
+        }).on("pinch", e => {
+            scale = e.datas.scale * e.scale;
+            target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
+        }).on("pinchEnd", e => {
+            console.log("pinch end");
+        }).on("dragEnd", e => {
+            console.log("drag end");
+        });
+    </script>
+</body>
+
+</html>

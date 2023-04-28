@@ -248,6 +248,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             preventRightClick,
             preventDefault,
             checkInput,
+            dragFocusedInput,
             preventClickEventOnDragStart,
             preventClickEventOnDrag,
             preventClickEventByCondition,
@@ -275,7 +276,7 @@ class Gesto extends EventEmitter<GestoEvents> {
                 const hasContentEditable = target.isContentEditable;
 
                 if (hasInput || hasContentEditable) {
-                    if (checkInput || activeElement === target) {
+                    if (checkInput || (!dragFocusedInput && activeElement === target)) {
                         // force false or already focused.
                         return false;
                     }

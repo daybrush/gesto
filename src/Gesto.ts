@@ -270,7 +270,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             const activeElement = document.activeElement as HTMLElement;
             const target = e.target as HTMLElement;
 
-           if (target) {
+            if (target) {
                 const tagName = target.tagName.toLowerCase();
                 const hasInput = INPUT_TAGNAMES.indexOf(tagName) > -1;
                 const hasContentEditable = target.isContentEditable;
@@ -281,13 +281,15 @@ class Gesto extends EventEmitter<GestoEvents> {
                         return false;
                     }
                     // no focus
-                    if (
-                        activeElement
-                        && hasContentEditable
-                        && activeElement.isContentEditable
-                        && activeElement.contains(target)
-                    ) {
-                        return false;
+                    if (activeElement && (
+                        activeElement === target
+                        || (hasContentEditable && activeElement.isContentEditable && activeElement.contains(target))
+                    )) {
+                        if (dragFocusedInput) {
+                            target.blur();
+                        } else {
+                            return false;
+                        }
                     }
                 } else if ((preventDefault || e.type === "touchstart") && activeElement) {
                     const activeTagName = activeElement.tagName.toLowerCase();
@@ -656,7 +658,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             this.onDragEnd(e);
         }
     }
-    private _passCallback = () => {};
+    private _passCallback = () => { };
 }
 
 export default Gesto;

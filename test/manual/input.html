@@ -37,7 +37,7 @@
             margin: auto;
         }
 
-        #target {
+        #target, #target2 {
             position: absolute;
             width: 200px;
             height: 150px;
@@ -87,38 +87,26 @@
 
 <body>
     <div class="wrapper">
+        <button id="bt1">focus1</button>
+        <button id="bt2">focus2</button>
         <div class="header">
             <input id="target" />
-        </div>
-        <div class="container">
-            <h1>Gesto</h1>
-            <p class="description">You can set up drag, pinch events in any browser.</p>
-            <p class="badges">
-                <a href="https://www.npmjs.com/package/gesto" target="_blank">
-                    <img src="https://img.shields.io/npm/v/gesto.svg?style=flat-square&amp;color=007acc&amp;label=version" alt="npm version"></a>
-                <a href="https://github.com/daybrush/gesto" target="_blank">
-                    <img src="https://img.shields.io/github/stars/daybrush/gesto.svg?color=42b883&amp;style=flat-square"></a>
-                <a href="https://github.com/daybrush/gesto" target="_blank">
-                    <img src="https://img.shields.io/badge/language-typescript-blue.svg?style=flat-square">
-                </a>
-                <a href="https://github.com/daybrush/gesto/blob/master/LICENSE" target="_blank">
-                    <img src="https://img.shields.io/github/license/daybrush/gesto.svg?style=flat-square&amp;label=license&amp;color=08CE5D">
-                </a>
-            </p>
-            <div class="buttons">
-                <a href="https://github.com/daybrush/gesto" target="_blank">Download</a>
-                <a href="https://daybrush.com/gesto/release/latest/doc/" target="_blank">API</a>
-            </div>
+            <div id="target2" contenteditable="true" style="transform: translate(300px);"/>
         </div>
     </div>
     <script src="../../dist/gesto.js"></script>
     <script>
         let tx = 0;
         let ty = 0;
+        let tx2 = 300;
+        let ty2 = 0;
         let scale = 1;
 
-        document.querySelector(".header").addEventListener("click", e => {
-            console.log("CLICK");
+        document.querySelector("#bt1").addEventListener("click", e => {
+            target.focus();
+        });
+        document.querySelector("#bt2").addEventListener("click", e => {
+            target2.focus();
         });
 
         const gesto = new Gesto(target, {
@@ -147,6 +135,21 @@
             target.style.transform = `translate(${tx}px, ${ty}px) scale(${scale})`;
         }).on("pinchEnd", e => {
             console.log("pinch end");
+        }).on("dragEnd", e => {
+            console.log("drag end");
+        });
+
+        const gesto2 = new Gesto(document.querySelector("#target2"), {
+            container: window,
+            checkInput: false,
+            dragFocusedInput: true,
+        }).on("dragStart", e => {
+            console.log("START", e.inputEvent);
+        }).on("drag", e => {
+            tx2 += e.deltaX;
+            ty2 += e.deltaY;
+            console.log(tx2, ty2);
+            target2.style.transform = `translate(${tx2}px, ${ty2}px)`;
         }).on("dragEnd", e => {
             console.log("drag end");
         });

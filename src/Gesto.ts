@@ -29,6 +29,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     private _isSecondaryButton = false;
     private _preventMouseEvent = false;
     private _prevInputEvent: any = null;
+    private _isDragAPI = false;
 
     /**
      *
@@ -92,6 +93,7 @@ class Gesto extends EventEmitter<GestoEvents> {
 
         this._allowClickEvent();
         this._dettachDragEvent();
+        this._isDragAPI = false;
     }
     /**
      * The total moved distance
@@ -241,6 +243,13 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (!this.flag && e.cancelable === false) {
             return;
         }
+        const isDragAPI = e.type.indexOf("drag") >= -1;
+
+        if (this.flag && isDragAPI) {
+            return;
+        }
+
+        this._isDragAPI = true;
         const {
             container,
             pinchOutside,
@@ -614,6 +623,10 @@ class Gesto extends EventEmitter<GestoEvents> {
             passive: false
         };
 
+        if (this._isDragAPI) {
+            addEvent(container, "dragover", this.onDrag);
+            addEvent(container, "dragend", this.onDragEnd);
+        }
         if (this.isMouse) {
             addEvent(container, "mousemove", this.onDrag);
             addEvent(container, "mouseup", this.onDragEnd);
@@ -628,6 +641,10 @@ class Gesto extends EventEmitter<GestoEvents> {
     private _dettachDragEvent() {
         const container = this.options.container!;
 
+        if (this._isDragAPI) {
+            removeEvent(container, "dragover", this.onDrag);
+            removeEvent(container, "dragend", this.onDragEnd);
+        }
         if (this.isMouse) {
             removeEvent(container, "mousemove", this.onDrag);
             removeEvent(container, "mouseup", this.onDragEnd);

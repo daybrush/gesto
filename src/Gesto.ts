@@ -12,6 +12,7 @@ const INPUT_TAGNAMES = ["textarea", "input"];
  */
 class Gesto extends EventEmitter<GestoEvents> {
     public options: GestoOptions = {};
+
     private flag = false;
     private pinchFlag = false;
     private data: IObject<any> = {};
@@ -30,6 +31,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     private _preventMouseEvent = false;
     private _prevInputEvent: any = null;
     private _isDragAPI = false;
+    private _isIdle = true;
 
     /**
      *
@@ -90,6 +92,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         this.doubleFlag = false;
         this.prevTime = 0;
         this.flag = false;
+        this._isIdle = true;
 
         this._allowClickEvent();
         this._dettachDragEvent();
@@ -108,6 +111,12 @@ class Gesto extends EventEmitter<GestoEvents> {
      */
     public isDragging(): boolean {
         return this.isDrag;
+    }
+    /**
+     * Whether the operation of gesto is finished and is in idle state
+     */
+    public isIdle(): boolean {
+        return this._isIdle;
     }
     /**
      * Whether to start drag
@@ -313,6 +322,7 @@ class Gesto extends EventEmitter<GestoEvents> {
                 }
             }
             this.clientStores = [new ClientStore(getEventClients(e))];
+            this._isIdle = false;
             this.flag = true;
             this.isDrag = false;
             this._isTrusted = isTrusted;
@@ -485,6 +495,7 @@ class Gesto extends EventEmitter<GestoEvents> {
                     });
                 });
             }
+            this._isIdle = true;
         }
     }
     public onPinchStart(e: TouchEvent) {

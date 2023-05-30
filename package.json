@@ -1,6 +1,6 @@
 {
     "name": "gesto",
-    "version": "1.18.0",
+    "version": "1.18.1",
     "description": "You can set up drag, pinch events in any browser.",
     "main": "./dist/gesto.cjs.js",
     "module": "./dist/gesto.esm.js",
@@ -48,7 +48,7 @@
         "typescript": "^4.6.4"
     },
     "dependencies": {
-        "@daybrush/utils": "^1.7.1",
+        "@daybrush/utils": "^1.12.0",
         "@scena/event-emitter": "^1.0.2"
     }
 }

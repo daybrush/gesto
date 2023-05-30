@@ -3,7 +3,7 @@ import {
     getEventClients, isMouseEvent, isMultiTouch,
 } from "./utils";
 import EventEmitter, { TargetParam } from "@scena/event-emitter";
-import { addEvent, removeEvent, now, IObject } from "@daybrush/utils";
+import { addEvent, removeEvent, now, IObject, getWindow } from "@daybrush/utils";
 import { ClientStore } from "./ClientStore";
 
 const INPUT_TAGNAMES = ["textarea", "input"];
@@ -32,6 +32,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     private _prevInputEvent: any = null;
     private _isDragAPI = false;
     private _isIdle = true;
+    private _window: WindowProxy = window;
 
     /**
      *
@@ -39,9 +40,12 @@ class Gesto extends EventEmitter<GestoEvents> {
     constructor(targets: Array<Element | Window> | Element | Window, options: GestoOptions = {}) {
         super();
         const elements = [].concat(targets as any) as Array<Element | Window>;
+        const firstTarget = elements[0];
+        this._window = firstTarget && !("document" in firstTarget) ? getWindow(firstTarget) : window;
+
         this.options = {
             checkInput: false,
-            container: elements.length > 1 ? window : elements[0],
+            container: firstTarget && !("document" in firstTarget)  ? getWindow(firstTarget) : firstTarget,
             preventRightClick: true,
             preventWheelClick: true,
             preventClickEventOnDragStart: false,
@@ -69,7 +73,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             addEvent(container!, "contextmenu", this._onContextMenu);
         }
         if (checkWindowBlur) {
-            addEvent(window, "blur", this.onBlur);
+            addEvent(getWindow(), "blur", this.onBlur);
         }
         if (this.isTouch) {
             const passive = {
@@ -231,7 +235,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         const container = this.options.container!;
 
         this.off();
-        removeEvent(window, "blur", this.onBlur);
+        removeEvent(this._window, "blur", this.onBlur);
         if (this.isMouse) {
             targets.forEach(target => {
                 removeEvent(target, "mousedown", this.onDragStart);
@@ -285,7 +289,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         }
 
         if (isDragStart) {
-            const activeElement = document.activeElement as HTMLElement;
+            const activeElement = this._window.document.activeElement as HTMLElement;
             const target = e.target as HTMLElement;
 
             if (target) {
@@ -318,7 +322,7 @@ class Gesto extends EventEmitter<GestoEvents> {
                 }
 
                 if (preventClickEventOnDragStart || preventClickEventOnDrag || preventClickEventByCondition) {
-                    addEvent(window, "click", this._onClick, true);
+                    addEvent(this._window, "click", this._onClick, true);
                 }
             }
             this.clientStores = [new ClientStore(getEventClients(e))];
@@ -626,7 +630,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         };
     }
     private _allowClickEvent = () => {
-        removeEvent(window, "click", this._onClick, true);
+        removeEvent(this._window, "click", this._onClick, true);
     };
     private _attchDragEvent() {
         const container = this.options.container!;

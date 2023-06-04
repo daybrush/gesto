@@ -3,7 +3,7 @@ import {
     getEventClients, isMouseEvent, isMultiTouch,
 } from "./utils";
 import EventEmitter, { TargetParam } from "@scena/event-emitter";
-import { addEvent, removeEvent, now, IObject, getWindow } from "@daybrush/utils";
+import { addEvent, removeEvent, now, IObject, getWindow, isWindow } from "@daybrush/utils";
 import { ClientStore } from "./ClientStore";
 
 const INPUT_TAGNAMES = ["textarea", "input"];
@@ -43,8 +43,8 @@ class Gesto extends EventEmitter<GestoEvents> {
         super();
         const elements = [].concat(targets as any) as Array<Element | Window>;
         const firstTarget = elements[0];
-        this._window = firstTarget && !("document" in firstTarget) ? getWindow(firstTarget) : window;
 
+        this._window = isWindow(firstTarget) ? firstTarget : getWindow(firstTarget);
         this.options = {
             checkInput: false,
             container: firstTarget && !("document" in firstTarget)  ? getWindow(firstTarget) : firstTarget,

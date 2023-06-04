@@ -18,12 +18,14 @@ class Gesto extends EventEmitter<GestoEvents> {
     private data: IObject<any> = {};
     private isDrag = false;
     private isPinch = false;
-    private isMouse = false;
-    private isTouch = false;
+
     private clientStores: ClientStore[] = [];
     private targets: Array<Element | Window> = [];
     private prevTime: number = 0;
     private doubleFlag: boolean = false;
+    private _useMouse = false;
+    private _useTouch = false;
+    private _useDrag = false;
     private _dragFlag = false;
     private _isTrusted = false;
     private _isMouseEvent = false;
@@ -61,11 +63,17 @@ class Gesto extends EventEmitter<GestoEvents> {
 
         const { container, events, checkWindowBlur } = this.options;
 
-        this.isTouch = events!.indexOf("touch") > -1;
-        this.isMouse = events!.indexOf("mouse") > -1;
+        this._useDrag = events!.indexOf("drag") > -1;
+        this._useTouch = events!.indexOf("touch") > -1;
+        this._useMouse = events!.indexOf("mouse") > -1;
         this.targets = elements;
 
-        if (this.isMouse) {
+        if (this._useDrag) {
+            elements.forEach(el => {
+                addEvent(el, "dragstart", this.onDragStart);
+            });
+        }
+        if (this._useMouse) {
             elements.forEach(el => {
                 addEvent(el, "mousedown", this.onDragStart);
                 addEvent(el, "mousemove", this._passCallback);
@@ -75,7 +83,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (checkWindowBlur) {
             addEvent(getWindow(), "blur", this.onBlur);
         }
-        if (this.isTouch) {
+        if (this._useTouch) {
             const passive = {
                 passive: false,
             };
@@ -236,13 +244,19 @@ class Gesto extends EventEmitter<GestoEvents> {
 
         this.off();
         removeEvent(this._window, "blur", this.onBlur);
-        if (this.isMouse) {
+
+        if (this._useDrag) {
+            targets.forEach(el => {
+                removeEvent(el, "dragstart", this.onDragStart);
+            });
+        }
+        if (this._useMouse) {
             targets.forEach(target => {
                 removeEvent(target, "mousedown", this.onDragStart);
             });
             removeEvent(container, "contextmenu", this._onContextMenu);
         }
-        if (this.isTouch) {
+        if (this._useTouch) {
             targets.forEach(target => {
                 removeEvent(target, "touchstart", this.onDragStart);
             });
@@ -275,7 +289,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             preventClickEventOnDrag,
             preventClickEventByCondition,
         } = this.options;
-        const isTouch = this.isTouch;
+        const useTouch = this._useTouch;
         const isDragStart = !this.flag;
 
         this._isSecondaryButton = e.which === 3 || e.button === 2;
@@ -372,14 +386,14 @@ class Gesto extends EventEmitter<GestoEvents> {
             this._attchDragEvent();
 
             // wait pinch
-            if (isTouch && pinchOutside) {
+            if (useTouch && pinchOutside) {
                 timer = setTimeout(() => {
                     addEvent(container!, "touchstart", this.onDragStart, {
                         passive: false
                     });
                 });
             }
-        } else if (isTouch && pinchOutside) {
+        } else if (useTouch && pinchOutside) {
             // pinch is occured
             removeEvent(container!, "touchstart", this.onDragStart);
         }
@@ -450,7 +464,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             this._allowClickEvent();
         }
 
-        if (this.isTouch && pinchOutside) {
+        if (this._useTouch && pinchOutside) {
             removeEvent(container!, "touchstart", this.onDragStart);
         }
         if (this.pinchFlag) {
@@ -633,43 +647,45 @@ class Gesto extends EventEmitter<GestoEvents> {
         removeEvent(this._window, "click", this._onClick, true);
     };
     private _attchDragEvent() {
+        const win = this._window;
         const container = this.options.container!;
         const passive = {
             passive: false
         };
 
         if (this._isDragAPI) {
-            addEvent(container, "dragover", this.onDrag);
-            addEvent(container, "dragend", this.onDragEnd);
+            addEvent(container, "dragover", this.onDrag, passive);
+            addEvent(win, "dragend", this.onDragEnd);
         }
-        if (this.isMouse) {
+        if (this._useMouse) {
             addEvent(container, "mousemove", this.onDrag);
-            addEvent(container, "mouseup", this.onDragEnd);
+            addEvent(win, "mouseup", this.onDragEnd);
         }
 
-        if (this.isTouch) {
+        if (this._useTouch) {
             addEvent(container, "touchmove", this.onDrag, passive);
-            addEvent(container, "touchend", this.onDragEnd, passive);
-            addEvent(container, "touchcancel", this.onDragEnd, passive);
+            addEvent(win, "touchend", this.onDragEnd, passive);
+            addEvent(win, "touchcancel", this.onDragEnd, passive);
         }
     };
     private _dettachDragEvent() {
+        const win = this._window;
         const container = this.options.container!;
 
         if (this._isDragAPI) {
             removeEvent(container, "dragover", this.onDrag);
-            removeEvent(container, "dragend", this.onDragEnd);
+            removeEvent(win, "dragend", this.onDragEnd);
         }
-        if (this.isMouse) {
+        if (this._useMouse) {
             removeEvent(container, "mousemove", this.onDrag);
-            removeEvent(container, "mouseup", this.onDragEnd);
+            removeEvent(win, "mouseup", this.onDragEnd);
         }
 
-        if (this.isTouch) {
+        if (this._useTouch) {
             removeEvent(container, "touchstart", this.onDragStart);
             removeEvent(container, "touchmove", this.onDrag);
-            removeEvent(container, "touchend", this.onDragEnd);
-            removeEvent(container, "touchcancel", this.onDragEnd);
+            removeEvent(win, "touchend", this.onDragEnd);
+            removeEvent(win, "touchcancel", this.onDragEnd);
         }
     };
     private _onClick = (e: MouseEvent) => {

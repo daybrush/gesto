@@ -52,6 +52,7 @@
             left: 50%;
             margin-left: -100px;
             margin-top: -75px;
+            z-index: 1000;
         }
 
         .container {
@@ -82,33 +83,21 @@
             margin: 5px;
             transition: all ease 0.5s;
         }
+        .container {
+            width: 1000px;
+            height: 1000px;
+            background: #f55;
+        }
     </style>
 </head>
 
 <body>
     <div class="wrapper">
         <div class="header">
-            <div id="target">Drag or Pinch me</div>
+            <div id="target" draggable="true">Drag or Pinch me</div>
         </div>
         <div class="container">
-            <h1>Gesto</h1>
-            <p class="description">You can set up drag, pinch events in any browser.</p>
-            <p class="badges">
-                <a href="https://www.npmjs.com/package/gesto" target="_blank">
-                    <img src="https://img.shields.io/npm/v/gesto.svg?style=flat-square&amp;color=007acc&amp;label=version" alt="npm version"></a>
-                <a href="https://github.com/daybrush/gesto" target="_blank">
-                    <img src="https://img.shields.io/github/stars/daybrush/gesto.svg?color=42b883&amp;style=flat-square"></a>
-                <a href="https://github.com/daybrush/gesto" target="_blank">
-                    <img src="https://img.shields.io/badge/language-typescript-blue.svg?style=flat-square">
-                </a>
-                <a href="https://github.com/daybrush/gesto/blob/master/LICENSE" target="_blank">
-                    <img src="https://img.shields.io/github/license/daybrush/gesto.svg?style=flat-square&amp;label=license&amp;color=08CE5D">
-                </a>
-            </p>
-            <div class="buttons">
-                <a href="https://github.com/daybrush/gesto" target="_blank">Download</a>
-                <a href="https://daybrush.com/gesto/release/latest/doc/" target="_blank">API</a>
-            </div>
+           
         </div>
     </div>
     <script src="../../dist/gesto.js"></script>
@@ -129,6 +118,7 @@
             pinchThreshold: Infinity,
             preventRightClick: false,
             preventDefault: false,
+            events: ["drag"],
             // preventClickEventOnDragStart: true,
             preventClickEventOnDrag: true,
         }).on("dragStart", e => {

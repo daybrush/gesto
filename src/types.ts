@@ -145,7 +145,7 @@ export interface GestoOptions {
     /**
      * @default ["mouse", "touch"]
      */
-    events?: Array<"mouse" | "touch">;
+    events?: Array<"drag" |"mouse" | "touch">;
     /**
      * Whether to prevent dragging of the right mouse button
      * @default true

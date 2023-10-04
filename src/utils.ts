@@ -93,7 +93,9 @@ export function getAverageClient(clients: Client[], length = clients.length): Re
         originalClientX: 0,
         originalClientY: 0,
     };
-    for (let i = 0; i < length; ++i) {
+    const minLength = Math.min(clients.length, length);
+
+    for (let i = 0; i < minLength; ++i) {
         const client = clients[i];
 
         sumClient.originalClientX += "originalClientX" in client ? client.originalClientX! : client.clientX;

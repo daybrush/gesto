@@ -1,4 +1,4 @@
-import { Client } from "./types";
+import { Client, Position } from "./types";
 import { getPosition, getDist, getRotatiion, getAverageClient } from "./utils";
 
 export class ClientStore {
@@ -29,8 +29,15 @@ export class ClientStore {
     }
     public getPositions(clients: Client[] = this.prevClients) {
         const prevClients = this.prevClients;
+        const startClients = this.startClients;
+        const minLength = Math.min(this.length, prevClients.length);
+        const positions: Position[] = [];
 
-        return this.startClients.map((startClient, i) => getPosition([clients[i]], [prevClients[i]], [startClient]));
+        for (let i = 0; i < minLength; ++i) {
+            positions[i] = getPosition([clients[i]], [prevClients[i]], [startClients[i]]);
+        }
+
+        return positions;
     }
     public getMovement(clients?: Client[]) {
         const movement = this.movement;

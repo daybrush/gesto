@@ -689,7 +689,6 @@ class Gesto extends EventEmitter<GestoEvents> {
             removeEvent(win, "touchend", this.onDragEnd);
             removeEvent(win, "touchcancel", this.onDragEnd);
         }
-        this._allowMouseEvent();
     };
     private _onClick = (e: MouseEvent) => {
         this._allowClickEvent();

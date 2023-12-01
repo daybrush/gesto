@@ -34,6 +34,7 @@ class Gesto extends EventEmitter<GestoEvents> {
     private _prevInputEvent: any = null;
     private _isDragAPI = false;
     private _isIdle = true;
+    private _preventMouseEventId = 0;
     private _window: WindowProxy = window;
 
     /**
@@ -351,7 +352,7 @@ class Gesto extends EventEmitter<GestoEvents> {
             this.doubleFlag = now() - this.prevTime < 200;
             this._isMouseEvent = isMouseEvent(e);
             if (!this._isMouseEvent && this._preventMouseEvent) {
-                this._preventMouseEvent = false;
+                this._allowMouseEvent();
             }
 
             const result = this._preventMouseEvent || this.emit("dragStart", {
@@ -507,11 +508,12 @@ class Gesto extends EventEmitter<GestoEvents> {
 
             if (!this._isMouseEvent) {
                 this._preventMouseEvent = true;
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        this._preventMouseEvent = false;
-                    });
-                });
+
+                // Prevent the problem of touch event and mouse event occurring simultaneously
+                clearTimeout(this._preventMouseEventId);
+                this._preventMouseEventId = setTimeout(() => {
+                    this._preventMouseEvent = false;
+                }, 200);
             }
             this._isIdle = true;
         }
@@ -687,10 +689,12 @@ class Gesto extends EventEmitter<GestoEvents> {
             removeEvent(win, "touchend", this.onDragEnd);
             removeEvent(win, "touchcancel", this.onDragEnd);
         }
+        this._allowMouseEvent();
     };
     private _onClick = (e: MouseEvent) => {
         this._allowClickEvent();
-        this._preventMouseEvent = false;
+        this._allowMouseEvent();
+
         const preventClickEventByCondition = this.options.preventClickEventByCondition;
         if (preventClickEventByCondition?.(e)) {
             return;
@@ -705,6 +709,10 @@ class Gesto extends EventEmitter<GestoEvents> {
         } else {
             this.onDragEnd(e);
         }
+    }
+    private _allowMouseEvent() {
+        this._preventMouseEvent = false;
+        clearTimeout(this._preventMouseEventId);
     }
     private _passCallback = () => { };
 }

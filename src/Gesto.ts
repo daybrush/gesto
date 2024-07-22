@@ -271,7 +271,7 @@ class Gesto extends EventEmitter<GestoEvents> {
         if (!this.flag && e.cancelable === false) {
             return;
         }
-        const isDragAPI = e.type.indexOf("drag") >= -1;
+        const isDragAPI = e.type.indexOf("drag") > -1;
 
         if (this.flag && isDragAPI) {
             return;
